@@ -1,0 +1,2145 @@
+<title>Fieldbook Office</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  /* Layout: sticky app bar · a cut-away office building (2 floors x 3 rooms) above the job site · a right rail holding today's field book */
+  --bg:#FAF8F3; --card:#FFFFFF; --line:#E7E2D9; --ink:#14213D; --slate:#5B6475; --accent:#F2C230;
+  --ok:#2F7D4F; --ok-bg:#E4F0E8; --pend:#3B5B8C; --pend-bg:#E6ECF5; --warn:#B45309; --warn-bg:#FBEDDA; --bad:#B42318; --bad-bg:#FBE6E3; --none:#5B6475; --none-bg:#F0ECE4;
+  --btn:#14213D; --btn-fg:#FFFFFF; --btn-ok:#2F7D4F; --focus:#3B5B8C; --scrim:rgba(20,33,61,.32);
+  --shadow:0 1px 2px rgba(20,33,61,.06),0 10px 30px rgba(20,33,61,.10);
+  --facade:#E5DACB; --wall-1:#F5EFE4; --wall-2:#EAF1EC; --wall-3:#ECEFF6; --wall-4:#F6ECE5; --wall-t:#F8F6F1;
+  --floor:#D9C3A0; --seam:#C6AB83; --desk-top:#BE8F5E; --desk-front:#A47548; --chair:#3C4760;
+  --sky-top:#BCDCF0; --sky-bot:#EAF4FA; --cloud:#FFFFFF; --city:#A9BDCD; --hill:#B9CFA3; --hill2:#A3BF8C; --ground:#BC9E76; --ground-2:#977A57;
+  --cork:#C8A274; --cork-dot:#B08A5E; --wood:#8B6B47; --glass:#D5E7F1; --stars:0; --sun:1; --moon:0;
+  --glow:none;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --cond:"IBM Plex Sans Condensed","Arial Narrow","IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1422; --card:#161E31; --line:#28324A; --ink:#E8ECF4; --slate:#A4AEC3;
+    --ok:#6CC491; --ok-bg:#14301F; --pend:#9AB7E8; --pend-bg:#18253F; --warn:#F3A85E; --warn-bg:#36240F; --bad:#F59086; --bad-bg:#3B1815; --none:#A4AEC3; --none-bg:#1D2437;
+    --btn:#E8ECF4; --btn-fg:#0E1422; --btn-ok:#2F7D4F; --focus:#9AB7E8; --scrim:rgba(0,0,0,.55);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    --facade:#252B3A; --wall-1:#2A2A31; --wall-2:#232E2C; --wall-3:#252A39; --wall-4:#2F2829; --wall-t:#2A2C31;
+    --floor:#4B3D2F; --seam:#3C3126; --desk-top:#80603F; --desk-front:#6A4D31; --chair:#151B2A;
+    --sky-top:#0B1430; --sky-bot:#27365F; --cloud:#33426A; --city:#1A2342; --hill:#26372A; --hill2:#1F2E23; --ground:#4E4131; --ground-2:#3A3025;
+    --cork:#7B6146; --cork-dot:#6A5139; --wood:#5A452E; --glass:#22324F; --stars:1; --sun:0; --moon:1;
+    --glow:radial-gradient(ellipse 70% 55% at 50% 0%, rgba(255,210,140,.16), transparent 70%);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1422; --card:#161E31; --line:#28324A; --ink:#E8ECF4; --slate:#A4AEC3;
+  --ok:#6CC491; --ok-bg:#14301F; --pend:#9AB7E8; --pend-bg:#18253F; --warn:#F3A85E; --warn-bg:#36240F; --bad:#F59086; --bad-bg:#3B1815; --none:#A4AEC3; --none-bg:#1D2437;
+  --btn:#E8ECF4; --btn-fg:#0E1422; --btn-ok:#2F7D4F; --focus:#9AB7E8; --scrim:rgba(0,0,0,.55);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  --facade:#252B3A; --wall-1:#2A2A31; --wall-2:#232E2C; --wall-3:#252A39; --wall-4:#2F2829; --wall-t:#2A2C31;
+  --floor:#4B3D2F; --seam:#3C3126; --desk-top:#80603F; --desk-front:#6A4D31; --chair:#151B2A;
+  --sky-top:#0B1430; --sky-bot:#27365F; --cloud:#33426A; --city:#1A2342; --hill:#26372A; --hill2:#1F2E23; --ground:#4E4131; --ground-2:#3A3025;
+  --cork:#7B6146; --cork-dot:#6A5139; --wood:#5A452E; --glass:#22324F; --stars:1; --sun:0; --moon:1;
+  --glow:radial-gradient(ellipse 70% 55% at 50% 0%, rgba(255,210,140,.16), transparent 70%);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink); font:16px/1.5 var(--sans); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--card)}
+h1,h2,h3,h4,h5{margin:0; text-wrap:balance; line-height:1.25}
+p{margin:0}
+button{font:inherit; color:inherit}
+input,select,textarea{font:inherit; color:var(--ink)}
+:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.vh{position:absolute!important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.sprite{position:absolute; width:0; height:0; overflow:hidden}
+.ic{width:18px; height:18px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+
+/* ---------- buttons, pills, chips ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:0 18px; border-radius:10px; border:1.5px solid transparent; font-weight:600; font-size:15px; cursor:pointer; white-space:nowrap; text-decoration:none; transition:transform .12s, background .2s}
+.btn:active{transform:translateY(1px)}
+.btn--primary{background:var(--btn); color:var(--btn-fg)}
+.btn--ok{background:var(--btn-ok); color:#fff}
+.btn--ghost{background:var(--card); border-color:var(--line); color:var(--ink)}
+.btn--ghost:hover{border-color:var(--slate)}
+.btn--quiet{background:transparent; color:var(--slate); padding:0 12px}
+.btn--quiet:hover{color:var(--ink)}
+.btn--danger{background:transparent; border-color:var(--line); color:var(--bad)}
+.btn--lg{min-height:56px; font-size:16px; padding:0 22px; border-radius:12px}
+.btn--block{width:100%}
+.btn[disabled]{opacity:.5; cursor:not-allowed}
+.iconbtn{display:inline-grid; place-items:center; width:48px; height:48px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); cursor:pointer}
+.pill{display:inline-flex; align-items:center; gap:5px; padding:3px 9px 3px 7px; border-radius:999px; font-size:13px; font-weight:600; line-height:1.3; white-space:nowrap}
+.pill .ic{width:14px; height:14px}
+.pill--ok{background:var(--ok-bg); color:var(--ok)}
+.pill--pend{background:var(--pend-bg); color:var(--pend)}
+.pill--warn{background:var(--warn-bg); color:var(--warn)}
+.pill--bad{background:var(--bad-bg); color:var(--bad)}
+.pill--none{background:var(--none-bg); color:var(--none)}
+.chip-btn{display:inline-flex; align-items:center; gap:6px; min-height:48px; padding:0 14px; border-radius:24px; border:1.5px solid var(--line); background:var(--card); cursor:pointer; font-size:14px; font-weight:500; text-align:left}
+.chip-btn:hover{border-color:var(--slate)}
+.ev{display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:5px 12px 5px 5px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); cursor:pointer; font-size:13px; font-weight:500; text-align:left}
+.ev:hover{border-color:var(--slate)}
+.ev__thumb{display:grid; place-items:center; width:36px; height:36px; border-radius:7px; background:var(--pend-bg); color:var(--pend)}
+.ev__thumb--photo{background:linear-gradient(160deg,#9EC3DD 0 45%,#B99A70 45% 100%); color:#fff}
+.ev__thumb--voice{background:var(--ok-bg); color:var(--ok)}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.asst{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:7px; background:var(--accent); flex:none}
+.asst svg{width:16px; height:16px}
+.linkbtn{background:none; border:0; padding:0 4px; min-height:48px; color:var(--slate); font-size:14px; font-weight:500; cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+.linkbtn:hover{color:var(--ink)}
+
+/* ---------- two-part progress bar ---------- */
+.bar{position:relative; height:10px; border-radius:5px; background:var(--none-bg); overflow:hidden}
+.bar__ok{position:absolute; left:0; top:0; bottom:0; background:var(--ok); border-radius:5px 0 0 5px; transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.bar__pend{position:absolute; top:0; bottom:0; background:repeating-linear-gradient(135deg, var(--pend) 0 3px, transparent 3px 7px); box-shadow:inset 0 0 0 1px var(--pend); opacity:.85; transition:left .9s cubic-bezier(.2,.8,.2,1), width .9s cubic-bezier(.2,.8,.2,1)}
+.bar__lbl{font-size:14px; color:var(--slate); margin-top:5px}
+.bar__lbl b{color:var(--ink); font-size:15px}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--card); border-bottom:1px solid var(--line)}
+.topbar__in{display:flex; align-items:center; gap:14px; min-height:68px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); max-width:1500px; margin:0 auto}
+.brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:19px; letter-spacing:-.01em}
+.brand svg{width:32px; height:32px}
+.company{display:flex; flex-direction:column; line-height:1.25; padding-left:14px; border-left:1px solid var(--line); min-width:0}
+.company b{font-weight:600; font-size:15px}
+.company span{font-size:13px; color:var(--slate)}
+.sample{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:6px; vertical-align:1px}
+.topbar__sp{flex:1}
+.me{display:flex; align-items:center; gap:8px; padding-left:6px}
+.me .av{width:40px; height:40px}
+
+/* ---------- page grid ---------- */
+.main{display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:24px; align-items:start; padding-block:20px 48px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); max-width:1500px; margin:0 auto}
+.stage{min-width:0}
+.stage__head{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:10px 24px; margin-bottom:14px}
+.stage__title{font-size:26px; font-weight:700; letter-spacing:-.015em}
+.stage__sub{color:var(--slate); font-size:15px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13.5px; color:var(--slate); max-width:620px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.legend .ic{width:16px; height:16px; color:var(--ink)}
+
+/* ---------- building ---------- */
+.building{position:relative; background:var(--facade); border:2px solid var(--ink); border-bottom:0; border-radius:18px 18px 0 0; padding:0 10px 12px}
+.roof{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding:12px 4px 10px}
+.roof__sign{display:inline-flex; align-items:center; gap:10px; background:var(--ink); color:var(--bg); padding:7px 14px 7px 9px; border-radius:6px; font:700 15px/1 var(--cond); letter-spacing:.16em; text-transform:uppercase}
+.roof__sign svg{width:24px; height:24px}
+.antenna{width:64px; height:52px; overflow:visible}
+.antenna .arcs path{opacity:.25; transition:opacity .2s}
+.antenna.ping .arcs .a1{animation:ping .9s ease-out}
+.antenna.ping .arcs .a2{animation:ping .9s .15s ease-out}
+@keyframes ping{0%{opacity:.25}30%{opacity:1}100%{opacity:.25}}
+.floor{display:grid; gap:10px; grid-template-columns:.82fr 1.36fr 1fr}
+.floor + .floor{margin-top:12px}
+.floor{padding-bottom:12px; border-bottom:7px solid var(--ink)}
+.floor:last-child{border-bottom:0; padding-bottom:0}
+
+.room{--wall:var(--wall-1); position:relative; min-height:296px; padding-top:44px; background:var(--wall); border:2px solid var(--ink); border-radius:6px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; isolation:isolate}
+.room::before{content:""; position:absolute; inset:0; background-image:var(--glow); pointer-events:none; z-index:0}
+.room__floor{position:absolute; left:0; right:0; bottom:0; height:52px; z-index:0; background:repeating-linear-gradient(90deg, var(--floor) 0 52px, var(--seam) 52px 54px); border-top:3px solid var(--seam)}
+.room__sign{position:absolute; top:10px; left:10px; z-index:3; font:700 12px/1 var(--cond); letter-spacing:.12em; text-transform:uppercase; padding:6px 9px; border-radius:4px; background:var(--card); color:var(--ink); border:1.5px solid var(--ink)}
+.room__row{position:relative; z-index:2; display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:center; gap:6px 4px; padding:0 6px 8px}
+.desks{display:contents}
+.decor{position:absolute; z-index:1; pointer-events:none}
+
+/* wall art */
+.s-frame{fill:var(--card); stroke:var(--ink); stroke-width:2}
+.s-cloud{fill:var(--cloud)}
+.s-city{fill:var(--city)}
+.s-mull{stroke:var(--ink); stroke-width:2; fill:none}
+.s-tree{fill:#7FA66A}
+.s-stars circle{fill:#fff; opacity:var(--stars)}
+.s-glass{fill:var(--glass)}
+.s-ink{fill:var(--ink)}
+.s-inkline{stroke:var(--ink); fill:none}
+.drift{animation:drift 34s linear infinite}
+.drift--b{animation-duration:46s; animation-delay:-20s}
+@keyframes drift{from{transform:translateX(-50px)}to{transform:translateX(100px)}}
+.clock .hh,.clock .mh{stroke:var(--ink); stroke-linecap:round; transform-box:view-box; transform-origin:18px 18px; transition:transform .6s}
+.clock .hh{stroke-width:2.4}
+.clock .mh{stroke-width:1.6}
+.clock .face{fill:var(--card); stroke:var(--ink); stroke-width:2}
+.plant svg{display:block; width:40px; height:auto}
+.plant .leaves{transform-box:fill-box; transform-origin:50% 100%; animation:sway 5s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(2.5deg)}}
+
+/* ---------- workstation (a person's Assistant at a desk) ---------- */
+.ws{position:relative; display:flex; flex-direction:column; align-items:center; width:116px; padding:0; margin:0; background:none; border:0; border-radius:12px; cursor:pointer; text-align:center; -webkit-tap-highlight-color:transparent}
+.ws .fig{display:block; width:112px; height:auto; overflow:visible; transition:transform .2s}
+.ws:hover .fig{transform:translateY(-2px)}
+.bubble{position:relative; display:inline-flex; align-items:center; gap:4px; max-width:118px; height:26px; padding:0 8px 0 6px; margin-bottom:3px; border-radius:13px; font-size:12px; font-weight:600; line-height:1; background:var(--card); color:var(--ink); border:1px solid var(--line); box-shadow:0 1px 2px rgba(20,33,61,.08); white-space:nowrap; z-index:2}
+.bubble .ic{width:13px; height:13px}
+.bubble::after{content:""; position:absolute; bottom:-5px; left:50%; width:8px; height:8px; margin-left:-4px; background:inherit; border-right:1px solid; border-bottom:1px solid; border-color:inherit; transform:rotate(45deg)}
+.bubble__t{overflow:hidden; text-overflow:ellipsis}
+.bubble[data-kind="work"],.bubble[data-kind="pend"]{background:var(--pend-bg); color:var(--pend); border-color:var(--pend-bg)}
+.bubble[data-kind="ok"]{background:var(--ok-bg); color:var(--ok); border-color:var(--ok-bg)}
+.bubble[data-kind="warn"]{background:var(--warn-bg); color:var(--warn); border-color:var(--warn-bg)}
+.bubble[data-kind="bad"]{background:var(--bad-bg); color:var(--bad); border-color:var(--bad-bg)}
+.bubble[data-kind="offline"]{background:var(--none-bg); color:var(--slate); border-color:var(--none-bg)}
+.bubble.pop{animation:pop .4s cubic-bezier(.3,1.7,.5,1)}
+@keyframes pop{0%{transform:scale(.7)}100%{transform:scale(1)}}
+.plate{position:relative; z-index:2; display:flex; flex-direction:column; margin-top:-13px; min-width:86px; max-width:112px; padding:3px 9px 4px; background:var(--card); border:1.5px solid var(--ink); border-radius:6px; line-height:1.2}
+.plate__name{font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.plate__role{font-size:11.5px; color:var(--slate); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tags{display:flex; flex-wrap:wrap; justify-content:center; gap:3px; min-height:20px; margin-top:4px; position:relative; z-index:2}
+.tag{display:inline-flex; align-items:center; gap:4px; padding:3px 6px; border-radius:4px; font-size:11px; font-weight:600; line-height:1; background:var(--card); color:var(--ink); border:1px solid var(--line); white-space:nowrap}
+.tag::before{content:""; width:7px; height:7px; border-radius:2px; background:var(--c, var(--slate))}
+.tag.pop{animation:pop .45s cubic-bezier(.3,1.7,.5,1)}
+.fig .chair{fill:var(--chair)}
+.fig .d-top{fill:var(--desk-top)}
+.fig .d-front{fill:var(--desk-front)}
+.fig .bod{animation:breathe 3.8s ease-in-out infinite; animation-delay:var(--d,0s)}
+@keyframes breathe{50%{transform:translateY(-1.3px)}}
+.fig .eyes{transform-box:fill-box; transform-origin:center; animation:blink 5.2s infinite; animation-delay:var(--d,0s)}
+@keyframes blink{0%,95%,100%{transform:scaleY(1)}97.5%{transform:scaleY(.1)}}
+.fig .steam{opacity:0; animation:steam 3s ease-in-out infinite; animation-delay:var(--d,0s)}
+@keyframes steam{0%{opacity:0; transform:translateY(2px)}40%{opacity:.85}100%{opacity:0; transform:translateY(-7px)}}
+.ws.is-working .hand-l{animation:tap .3s ease-in-out infinite alternate}
+.ws.is-working .hand-r{animation:tap .3s ease-in-out .15s infinite alternate}
+@keyframes tap{to{transform:translateY(-3px)}}
+.ws.is-rx .led,.ws.is-rx .sticker{animation:led .22s steps(2) 8}
+@keyframes led{50%{fill:#FFFFFF}}
+.ws.is-offline .fig{filter:saturate(.3); opacity:.72}
+.ws.arrive{animation:arrive .55s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes arrive{from{transform:translateY(10px) scale(.92); opacity:0}}
+.ws--open .plate{border-style:dashed}
+.ws--open .fig{opacity:.85}
+
+/* ---------- room props ---------- */
+.intray{display:flex; flex-direction:column; align-items:center; gap:4px; padding:0; margin:0 0 4px; background:none; border:0; cursor:pointer; border-radius:10px}
+.intray svg{display:block; width:78px; height:auto}
+.intray__lbl{display:inline-flex; align-items:center; gap:5px; min-height:30px; padding:0 10px; border-radius:15px; background:var(--pend-bg); color:var(--pend); font-size:12.5px; font-weight:700}
+.intray__lbl .ic{width:14px; height:14px}
+.intray.bump svg{animation:pop .45s cubic-bezier(.3,1.7,.5,1)}
+.hire-sign{display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:0; padding:0; margin:0 0 4px; cursor:pointer; border-radius:10px}
+.hire-sign svg{display:block; width:78px; height:auto}
+.hire-sign span{display:inline-flex; align-items:center; gap:5px; min-height:32px; padding:0 12px; border-radius:16px; background:var(--btn); color:var(--btn-fg); font-size:13px; font-weight:600}
+.hire-sign span .ic{width:15px; height:15px}
+.hire-sign:hover svg{transform:rotate(-2deg)}
+.door{position:absolute; left:6px; bottom:6px; width:48px; z-index:1}
+.door svg,.elev svg{display:block; width:100%; height:auto}
+.door .door-panel{transform-box:view-box; transform-origin:6px 60px; transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+.door.open .door-panel{transform:scaleX(.18)}
+.elev{position:absolute; right:6px; bottom:6px; width:54px; z-index:1}
+.elev .el-l,.elev .el-r{transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+.elev.open .el-l{transform:translateX(-24px)}
+.elev.open .el-r{transform:translateX(24px)}
+.elev .el-num{font:600 9px var(--mono); fill:var(--accent)}
+.plotter svg{display:block; width:104px; height:auto}
+.plotter .paper{transform-box:fill-box; transform-origin:50% 0; animation:plot 7s ease-in-out infinite}
+@keyframes plot{0%{transform:scaleY(.08)}60%,100%{transform:scaleY(1)}}
+.board{position:relative; z-index:2; margin:2px 12px auto; padding:10px; border:6px solid var(--wood); border-radius:4px; background-color:var(--cork); background-image:radial-gradient(var(--cork-dot) 1px, transparent 1.4px); background-size:9px 9px; min-height:112px}
+.board__sheets{display:flex; flex-wrap:wrap; gap:10px}
+.sheet{position:relative; display:flex; flex-direction:column; gap:4px; width:118px; min-height:84px; padding:12px 9px 8px; border:0; border-radius:2px; background:var(--card); color:var(--ink); text-align:left; cursor:pointer; box-shadow:0 2px 0 rgba(0,0,0,.12); transform:rotate(var(--rot,-1deg)); transition:transform .2s}
+.sheet:hover{transform:rotate(0) translateY(-2px)}
+.sheet::before{content:""; position:absolute; top:-5px; left:50%; width:11px; height:11px; margin-left:-5px; border-radius:50%; background:var(--c,#B42318); box-shadow:inset -2px -2px 0 rgba(0,0,0,.2)}
+.sheet__name{font-weight:700; font-size:13px; line-height:1.15}
+.sheet__bar{height:6px; border-radius:3px; background:var(--none-bg); overflow:hidden}
+.sheet__bar i{display:block; height:100%; background:var(--ok); transition:width .9s}
+.sheet__pct{font-size:12px; color:var(--slate)}
+.sheet .pill{font-size:11px; padding:2px 6px 2px 5px; align-self:flex-start}
+.sheet .pill .ic{width:12px; height:12px}
+.sheet--add{align-items:center; justify-content:center; background:transparent; border:2px dashed rgba(20,33,61,.45); color:#14213D; box-shadow:none; font-weight:600; font-size:13px; text-align:center; --rot:0deg}
+:root[data-theme="dark"] .sheet--add{border-color:rgba(232,236,244,.5); color:#E8ECF4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sheet--add{border-color:rgba(232,236,244,.5); color:#E8ECF4}}
+.sheet.pop{animation:pinpop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pinpop{0%{transform:scale(.2) rotate(-20deg); opacity:0}100%{transform:rotate(var(--rot,-1deg))}}
+.sticky{position:absolute; z-index:5; width:96px; padding:7px 8px; background:#F7DC6F; color:#14213D; font-size:11px; font-weight:600; line-height:1.25; box-shadow:0 3px 6px rgba(0,0,0,.18); transform:rotate(var(--r,2deg)); animation:pinpop .45s cubic-bezier(.3,1.6,.5,1) both}
+.sticky b{display:block; font:600 12px var(--mono)}
+.ptable svg{display:block; width:150px; height:auto}
+.ptable .bp{transform-box:fill-box; transform-origin:0 50%; transform:scaleX(0); transition:transform 1.4s cubic-bezier(.4,.1,.2,1)}
+.ptable .tube{transition:opacity .3s}
+.ptable.unroll .bp{transform:none}
+.ptable.unroll .tube{opacity:0}
+.ptable .bp path{stroke-dasharray:240; stroke-dashoffset:240}
+.ptable.unroll .bp path{transition:stroke-dashoffset 2s .8s ease; stroke-dashoffset:0}
+.cabinet{position:relative}
+.cabinet svg{display:block; width:60px; height:auto}
+.cabinet .dr{transform-box:fill-box; transform-origin:center; transition:transform .35s}
+.cabinet.open .dr2{transform:scale(1.14) translateY(3px)}
+.cab-count{position:absolute; bottom:calc(100% + 8px); right:-6px; z-index:6; white-space:nowrap; padding:6px 10px; border-radius:8px; background:var(--btn); color:var(--btn-fg); font-size:12px; box-shadow:var(--shadow)}
+.room--plan.is-busy{box-shadow:0 0 0 4px var(--accent)}
+
+/* ---------- job site ---------- */
+.site{position:relative; overflow:hidden; border:2px solid var(--ink); border-radius:0 0 18px 18px; background:linear-gradient(var(--sky-top), var(--sky-bot) 62%); padding:12px 12px 0}
+.site__sky{position:absolute; inset:0; pointer-events:none}
+.site__sky svg{position:absolute; left:0; top:0; width:100%; height:100%}
+.sun{opacity:var(--sun)}
+.moon{opacity:var(--moon)}
+.site__head{position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px}
+.site__sign{display:inline-flex; align-items:center; gap:8px; background:var(--wood); color:#FFF8EA; border-radius:4px; padding:6px 10px; font:700 12px/1 var(--cond); letter-spacing:.12em; text-transform:uppercase; box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.site__sign .ic{width:14px; height:14px}
+.site__row{position:relative; z-index:2; display:grid; grid-template-columns:.86fr 2.45fr 1fr; gap:14px; align-items:end}
+.dig svg{display:block; width:100%; height:auto}
+.dig .arm{transform-box:view-box; transform-origin:103px 40px; animation:dig 3.6s ease-in-out infinite}
+@keyframes dig{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(9deg)}}
+.dig .boom{transform-box:view-box; transform-origin:156px 100px; animation:boom 3.6s ease-in-out infinite}
+@keyframes boom{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
+.dig .sta{font:600 8.5px var(--mono); fill:#14213D}
+.trailer{position:relative; padding-bottom:16px}
+.room--trailer{--wall:var(--wall-t); border-width:3px; border-radius:10px; min-height:280px; box-shadow:inset 0 0 0 6px var(--card)}
+.room--trailer .room__floor{height:46px}
+.trailer__wheels{position:absolute; left:0; right:0; bottom:0; height:18px; display:flex; justify-content:space-between; padding:0 18%}
+.trailer__wheels i{width:20px; height:20px; border-radius:50%; background:#2B303B; border:4px solid #5B6475}
+.gatezone{display:flex; flex-direction:column; gap:6px; padding-bottom:6px}
+.room--gate{--wall:var(--wall-1); min-height:236px}
+.truck{align-self:flex-end}
+.truck svg{display:block; width:140px; height:auto}
+.truck .tdoor{transform-box:fill-box; transform-origin:0 50%; transition:transform .35s}
+.truck.open .tdoor{transform:scaleX(.2)}
+.site__ground{position:relative; z-index:1; height:18px; margin:0 -12px; background:var(--ground); border-top:3px solid var(--ground-2)}
+.fence{position:absolute; inset:0; background-image:repeating-linear-gradient(45deg, rgba(91,100,117,.35) 0 1px, transparent 1px 9px),repeating-linear-gradient(-45deg, rgba(91,100,117,.35) 0 1px, transparent 1px 9px); pointer-events:none; z-index:0}
+
+/* ---------- rail ---------- */
+.rail{position:sticky; top:calc(env(safe-area-inset-top,0px) + 84px); display:flex; flex-direction:column; gap:14px; min-width:0}
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px}
+.card__head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px}
+.eyebrow{font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--slate)}
+.h3{font-size:17px; font-weight:700; display:flex; align-items:center; gap:8px}
+.today__date{font-size:14px; color:var(--slate)}
+.today__date b{color:var(--ink); font-weight:600}
+.live{display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:0 12px; border-radius:20px; border:1.5px solid var(--line); background:var(--card); font-size:13px; font-weight:600; cursor:pointer}
+.live i{width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 0 var(--ok); animation:livepulse 1.6s infinite}
+.live[aria-pressed="false"] i{background:var(--slate); animation:none}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(47,125,79,.5)}100%{box-shadow:0 0 0 8px rgba(47,125,79,0)}}
+.needs{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.need{display:flex; align-items:center; gap:10px; padding:8px 8px 8px 10px; border-radius:10px; background:var(--bg); border:1px solid var(--line)}
+.need__ic{display:grid; place-items:center; width:30px; height:30px; border-radius:8px; flex:none}
+.need__t{flex:1; min-width:0; font-size:14px; line-height:1.35}
+.need .btn{min-height:44px; padding:0 12px; font-size:14px}
+.need--empty{color:var(--slate); font-size:14px; padding:6px 2px}
+.projlist{display:flex; flex-direction:column; gap:6px}
+.proj{display:block; width:100%; text-align:left; background:none; border:0; padding:8px; margin:0 -8px; width:calc(100% + 16px); border-radius:10px; cursor:pointer}
+.proj:hover{background:var(--bg)}
+.proj__name{display:flex; align-items:center; gap:8px; font-weight:600; font-size:15px; margin-bottom:6px}
+.proj__name::before{content:""; width:10px; height:10px; border-radius:3px; background:var(--c)}
+.log{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; max-height:440px; overflow:auto}
+.log li{display:grid; grid-template-columns:62px 1fr; gap:2px 10px; padding:9px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.4}
+.log li:first-child{border-top:0}
+.log time{font:500 12.5px/1.6 var(--mono); color:var(--slate)}
+.log li > div{min-width:0}
+.log .chips{margin-top:6px}
+.log li.new{animation:slidein .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes slidein{from{opacity:0; transform:translateY(-8px)}}
+
+/* ---------- avatar ---------- */
+.av{display:inline-block; width:40px; height:40px; border-radius:50%; overflow:hidden; background:var(--pend-bg); flex:none; border:1.5px solid var(--line)}
+.av svg{display:block; width:100%; height:100%}
+.av--sm{width:30px; height:30px}
+.av--lg{width:60px; height:60px}
+
+/* ---------- drawer, modal, confirm ---------- */
+.scrim{position:fixed; inset:0; z-index:40; background:var(--scrim); opacity:0; transition:opacity .25s}
+.scrim.on{opacity:1}
+.drawer{position:fixed; top:0; right:0; bottom:0; z-index:41; width:min(500px,100%); display:flex; flex-direction:column; background:var(--bg); border-left:1px solid var(--line); box-shadow:var(--shadow); transform:translateX(105%); transition:transform .3s cubic-bezier(.2,.8,.2,1); padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.on{transform:none}
+.drawer__head{display:flex; align-items:flex-start; gap:12px; padding:16px max(16px,env(safe-area-inset-right,0px)) 14px 20px; background:var(--card); border-bottom:1px solid var(--line)}
+.drawer__head .av{width:56px; height:56px}
+.drawer__titles{flex:1; min-width:0}
+.drawer__title{font-size:22px; font-weight:700; letter-spacing:-.01em}
+.drawer__sub{color:var(--slate); font-size:15px; margin-top:2px}
+.drawer__body{flex:1; overflow:auto; padding:18px max(16px,env(safe-area-inset-right,0px)) 28px 20px; display:flex; flex-direction:column; gap:22px}
+.drawer__foot{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; padding:12px max(16px,env(safe-area-inset-right,0px)) 12px 20px; background:var(--card); border-top:1px solid var(--line)}
+.drawer__foot:empty{display:none}
+.sec{display:flex; flex-direction:column; gap:10px}
+.relay{display:grid; grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) 44px minmax(0,1fr); align-items:start; gap:4px; padding:14px 10px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
+.relay__node{display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; min-width:0; line-height:1.25}
+.relay__node .av,.relay__node .asst{width:44px; height:44px; border-radius:50%}
+.relay__node .asst{border-radius:12px}
+.relay__node .asst svg{width:28px; height:28px}
+.relay__node b{font-size:13.5px}
+.relay__node small{font-size:12px; color:var(--slate)}
+.relay__wire{position:relative; height:44px}
+.relay__wire::before{content:""; position:absolute; left:0; right:0; top:21px; border-top:2px dashed var(--slate); opacity:.5}
+.relay__wire i{position:absolute; top:17px; left:0; width:10px; height:10px; border-radius:3px; background:var(--accent); border:1.5px solid #14213D; animation:relay 1.8s linear infinite}
+.relay__wire + .relay__node + .relay__wire i{animation-delay:.9s; background:#EBC873}
+@keyframes relay{from{left:0; opacity:0}15%{opacity:1}85%{opacity:1}to{left:calc(100% - 10px); opacity:0}}
+.sec__head{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.h4{font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--slate)}
+.explain{font-size:15px; color:var(--slate)}
+.linkrow{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.where{display:inline-flex; align-items:center; gap:5px; font-size:14px; color:var(--slate)}
+.where .ic{width:15px; height:15px}
+.now .bubble{max-width:none; height:auto; min-height:28px; padding-block:5px; white-space:normal; line-height:1.3}
+.now .bubble::after{display:none}
+.now{display:flex; gap:10px; align-items:center; padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line); font-size:15px; font-weight:500}
+.inputs{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.inp{display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; padding:8px 10px 8px 8px; border-radius:10px; background:var(--card); border:1px solid var(--line); font-size:14px}
+.inp .ev__thumb{width:36px; height:36px}
+.inp .q{display:block; color:var(--slate); font-size:13.5px; margin-top:2px}
+.inp time{font:500 12.5px var(--mono); color:var(--slate)}
+.empty{color:var(--slate); font-size:14.5px}
+.job{display:flex; flex-direction:column; gap:6px; padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
+.job__top{display:flex; gap:8px; align-items:baseline; justify-content:space-between}
+.job__name{font-weight:600; font-size:15.5px}
+.job__meta{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; justify-content:space-between; font-size:14px; color:var(--slate)}
+.job .linkbtn{align-self:flex-start; min-height:36px; font-size:13px}
+.roles{display:grid; gap:8px; border:0; margin:0; padding:0}
+.roles legend{padding:0; margin-bottom:8px; font-weight:600}
+.role{position:relative; display:block; padding:12px 12px 12px 44px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); cursor:pointer; font-size:14px; line-height:1.45}
+.role input{position:absolute; left:14px; top:15px; width:18px; height:18px; accent-color:var(--ink); margin:0}
+.role b{display:block; font-size:15px}
+.role span{display:block; color:var(--slate)}
+.role span em{font-style:normal; font-weight:600; color:var(--ink)}
+.role:has(input:checked){border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.role:has(input:focus-visible){outline:3px solid var(--focus); outline-offset:2px}
+.field{display:flex; flex-direction:column; gap:6px; font-size:14px; font-weight:600; border:0; margin:0; padding:0; min-width:0}
+.field > span,.field legend{font-weight:600; padding:0}
+.field input,.field select,.field textarea{min-height:48px; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); font-size:16px; font-weight:400; width:100%}
+.field textarea{min-height:88px; resize:vertical}
+.field small{font-weight:400; color:var(--slate); font-size:13.5px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none; border-color:var(--focus); box-shadow:0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent)}
+.err{color:var(--bad); font-size:13.5px; font-weight:600}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.seg{display:inline-flex; padding:3px; border-radius:12px; background:var(--none-bg); gap:3px; flex-wrap:wrap}
+.seg button{min-height:42px; padding:0 14px; border-radius:9px; border:0; background:transparent; font-size:14px; font-weight:600; color:var(--slate); cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.picklist{display:flex; flex-direction:column; gap:8px}
+.pick{display:flex; align-items:center; gap:10px; width:100%; min-height:56px; padding:8px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); text-align:left; cursor:pointer; font-size:14.5px}
+.pick[aria-pressed="true"]{border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.pick__t{flex:1; min-width:0}
+.pick__t small{display:block; color:var(--slate); font-size:13px}
+.pick__dot{width:10px; height:10px; border-radius:3px; background:var(--c); flex:none}
+.panel{display:flex; flex-direction:column; gap:12px; padding:14px; border-radius:12px; border:1.5px solid var(--ink); background:var(--card)}
+.panel__acts{display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap}
+.sec--danger{padding-top:6px; border-top:1px solid var(--line)}
+
+.rep{display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
+.rep__h{display:flex; align-items:center; gap:10px}
+.rep__who{flex:1; min-width:0; line-height:1.3}
+.rep__who b{display:block; font-size:15px}
+.rep__who span{font-size:13.5px; color:var(--slate)}
+.rep__chg{font-size:17px; font-weight:600; white-space:nowrap}
+.rep__where{font-size:13.5px; color:var(--slate)}
+.rep__verdict{display:flex; gap:8px; align-items:flex-start; font-size:15px}
+.rep__acts{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px}
+.rep.leaving{animation:repout .45s ease forwards}
+@keyframes repout{to{opacity:0; transform:translateX(30px)}}
+.brief{border-top:1px solid var(--line); padding-top:8px}
+.brief summary{cursor:pointer; min-height:40px; display:flex; align-items:center; font-weight:600; font-size:14px; color:var(--pend)}
+.brief__cols{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px}
+.brief__cols h5{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--slate); margin-bottom:4px}
+.brief__cols ul{margin:0; padding-left:18px; font-size:14px}
+.brief__hist{display:flex; gap:6px; align-items:center; margin-top:10px; font-size:14px}
+.quiet{font-size:13px; color:var(--slate); margin-top:8px}
+.grp{display:flex; flex-direction:column; gap:10px}
+.entry{position:relative; padding:12px 12px 12px 14px; border-radius:12px; background:var(--card); border:1px solid var(--line); font-size:14.5px}
+.entry__top{display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; font-size:13px; color:var(--slate)}
+.entry__top .ic{width:15px; height:15px; color:var(--ok)}
+.hash{font:500 12.5px var(--mono); color:var(--slate)}
+.entry__text{margin-top:4px; font-weight:500}
+.entry__text.struck{text-decoration:line-through; text-decoration-thickness:1.5px; color:var(--slate); font-weight:400}
+.amend{margin-top:8px; padding:10px 12px; border-left:3px solid var(--ink); background:var(--bg); border-radius:0 8px 8px 0}
+.amend__by{font-size:13px; color:var(--slate)}
+.planitem{display:grid; grid-template-columns:1fr; gap:8px; padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
+.planitem__row{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.planitem .field input,.planitem .field select{min-height:44px; font-size:15px}
+.planitem__name{font-weight:600; font-size:15.5px; display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap}
+
+.confirm{position:absolute; inset:0; z-index:5; display:flex; align-items:flex-end; background:var(--scrim); animation:fadein .2s}
+@keyframes fadein{from{opacity:0}}
+.confirm__card{width:100%; padding:20px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) 20px; background:var(--card); border-radius:16px 16px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:12px; animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px); opacity:.4}}
+.confirm__card h3{font-size:20px; display:flex; gap:8px; align-items:center}
+.confirm__card p{font-size:15.5px; color:var(--slate)}
+.confirm__acts{display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:4px}
+.confirm-list{margin:0; padding-left:20px; font-size:15px}
+.warnline{display:flex; gap:6px; align-items:center; color:var(--bad)!important; font-weight:600}
+
+.stampfx{position:absolute; inset:0; z-index:6; display:grid; place-items:center; pointer-events:none; background:color-mix(in srgb, var(--bg) 55%, transparent); animation:fadein .2s}
+.stampfx__tool{position:absolute; top:calc(50% - 150px); left:calc(50% - 38px); width:76px; animation:stampdrop 1.1s cubic-bezier(.5,0,.3,1) both}
+@keyframes stampdrop{0%{transform:translateY(-140px) rotate(-8deg)}40%{transform:translateY(64px) rotate(0)}52%{transform:translateY(58px)}100%{transform:translateY(-200px) rotate(6deg); opacity:0}}
+.stampfx__ink{display:flex; align-items:center; gap:10px; padding:10px 18px; border:4px solid var(--ok); border-radius:8px; color:var(--ok); font:700 26px/1 var(--cond); letter-spacing:.12em; text-transform:uppercase; transform:rotate(-8deg); opacity:0; animation:ink .5s .42s cubic-bezier(.2,1.7,.4,1) both}
+.stampfx__ink .ic{width:26px; height:26px; stroke-width:2.6}
+@keyframes ink{from{opacity:0; transform:rotate(-8deg) scale(1.8)}to{opacity:1; transform:rotate(-8deg) scale(1)}}
+.stampfx.out{opacity:0; transition:opacity .3s}
+
+.modal{position:fixed; inset:0; z-index:42; display:grid; place-items:center; padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.modal__card{position:relative; width:min(680px,100%); max-height:calc(100% - 8px); display:flex; flex-direction:column; background:var(--bg); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; animation:up .3s cubic-bezier(.2,.8,.2,1)}
+.modal__head{display:flex; align-items:flex-start; gap:12px; padding:18px 20px 14px; background:var(--card); border-bottom:1px solid var(--line)}
+.modal__body{flex:1; overflow:auto; padding:18px 20px 22px; display:flex; flex-direction:column; gap:18px}
+.modal__foot{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; padding:12px 20px; background:var(--card); border-top:1px solid var(--line)}
+.steps{list-style:none; display:flex; flex-wrap:wrap; gap:6px; margin:0; padding:0; counter-reset:s}
+.steps li{counter-increment:s; display:inline-flex; align-items:center; gap:6px; padding:5px 10px 5px 6px; border-radius:999px; background:var(--none-bg); color:var(--slate); font-size:13px; font-weight:600}
+.steps li::before{content:counter(s); display:grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--card); font:600 11px var(--mono)}
+.steps li.on{background:var(--btn); color:var(--btn-fg)}
+.steps li.on::before{color:var(--ink)}
+.steps li.done{background:var(--ok-bg); color:var(--ok)}
+.toggles{display:flex; flex-wrap:wrap; gap:8px}
+.tog{display:inline-flex; align-items:center; gap:6px; min-height:48px; padding:0 16px; border-radius:24px; border:1.5px solid var(--line); background:var(--card); font-weight:600; font-size:15px; cursor:pointer}
+.tog[aria-pressed="true"]{border-color:var(--ink); background:var(--btn); color:var(--btn-fg)}
+.teamgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px}
+.drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:150px; padding:20px; border:2px dashed var(--slate); border-radius:14px; background:var(--card); text-align:center; cursor:pointer; transition:background .2s, border-color .2s}
+.drop.over{background:var(--pend-bg); border-color:var(--pend)}
+.drop b{font-size:17px}
+.drop span{color:var(--slate); font-size:14px}
+.drop .ic{width:30px; height:30px; color:var(--pend)}
+.files{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.file{display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; padding:8px 10px 8px 8px; border-radius:10px; background:var(--card); border:1px solid var(--line); font-size:14px}
+.file small{display:block; color:var(--slate); font-size:12.5px}
+.file--dup{opacity:.75}
+.connect{display:flex; flex-wrap:wrap; gap:8px}
+.addr{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:14px; color:var(--slate)}
+.addr code{font:500 13.5px var(--mono); color:var(--ink); background:var(--none-bg); padding:4px 8px; border-radius:6px; user-select:all}
+
+.chat{display:flex; flex-direction:column; gap:12px}
+.msg{max-width:88%; padding:10px 14px; border-radius:14px; font-size:15px; line-height:1.5}
+.msg--me{align-self:flex-end; background:var(--btn); color:var(--btn-fg); border-bottom-right-radius:4px}
+.msg--bot{align-self:flex-start; background:var(--card); border:1px solid var(--line); border-bottom-left-radius:4px; display:flex; flex-direction:column; gap:10px}
+.msg--bot .who{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--slate)}
+.suggest{display:flex; flex-wrap:wrap; gap:8px}
+.composer{display:flex; gap:8px; width:100%}
+.composer input{flex:1; min-width:0; min-height:48px; padding:0 14px; border-radius:24px; border:1.5px solid var(--line); background:var(--card); font-size:16px}
+
+.evview{border-radius:12px; overflow:hidden; border:1px solid var(--line); background:var(--card)}
+.evview svg{display:block; width:100%; height:auto}
+.evmeta{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13.5px; color:var(--slate)}
+.evmeta span{display:inline-flex; align-items:center; gap:5px}
+.evmeta .ic{width:15px; height:15px}
+
+.toasts{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; align-items:center; width:min(560px, calc(100% - 32px)); pointer-events:none}
+.toast{display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; background:var(--btn); color:var(--btn-fg); font-size:15px; font-weight:500; box-shadow:var(--shadow); animation:up .3s cubic-bezier(.2,.8,.2,1)}
+.toast.out{opacity:0; transform:translateY(8px); transition:all .3s}
+
+/* ---------- motion layer ---------- */
+#fx{position:absolute; left:0; top:0; width:100%; height:0; overflow:hidden; pointer-events:none; z-index:35}
+.walker{position:absolute; width:46px; pointer-events:none}
+.walker svg{display:block; width:46px; height:auto; overflow:visible}
+.walker::after{content:""; position:absolute; left:9px; right:9px; bottom:4px; height:6px; border-radius:50%; background:rgba(20,33,61,.18); z-index:-1}
+.walker.flip svg{transform:scaleX(-1)}
+.walker .w-leg-l{transform-origin:25px 76px}
+.walker .w-leg-r{transform-origin:35px 76px}
+.walker .w-arm-l{transform-origin:18px 47px}
+.walker .w-arm-r{transform-origin:42px 47px}
+.walker.walking .w-leg-l,.walker.walking .w-arm-r{animation:swing .42s ease-in-out infinite alternate}
+.walker.walking .w-leg-r,.walker.walking .w-arm-l{animation:swing .42s ease-in-out infinite alternate-reverse}
+.walker.walking svg{animation:bob .21s ease-in-out infinite alternate}
+@keyframes swing{from{transform:rotate(-17deg)}to{transform:rotate(17deg)}}
+@keyframes bob{to{translate:0 -2px}}
+.walker.waving .w-arm-r{animation:wave .32s ease-in-out 5 alternate}
+@keyframes wave{from{transform:rotate(-160deg)}to{transform:rotate(-120deg)}}
+.packet{position:absolute; display:flex; align-items:center; gap:5px; padding:4px 8px 4px 4px; border-radius:8px; background:var(--card); border:1.5px solid var(--ink); font-size:11px; font-weight:600; white-space:nowrap; box-shadow:var(--shadow)}
+.packet .ev__thumb{width:22px; height:22px; border-radius:5px}
+.packet small{display:flex; align-items:center; gap:3px; font-size:10px; font-weight:500; color:var(--slate)}
+.packet small .ic{width:10px; height:10px}
+.packet .ev__thumb .ic{width:13px; height:13px}
+.flyer{position:absolute; display:flex; align-items:center; gap:6px}
+.flyer svg.folder{width:38px; height:30px}
+.flyer span{padding:3px 7px; border-radius:6px; background:var(--btn); color:var(--btn-fg); font:600 12px var(--mono); white-space:nowrap}
+.flytag{position:absolute}
+
+/* ---------- responsive ---------- */
+@media (max-width:1180px){
+  .main{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static; display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); align-items:start}
+}
+@media (max-width:860px){
+  .floor{grid-template-columns:1fr 1fr}
+  .room--plan{grid-column:1 / -1; order:-1}
+  .site__row{grid-template-columns:1fr 1fr}
+  .trailer{grid-column:1 / -1; order:-1}
+}
+@media (max-width:620px){
+  .floor{grid-template-columns:minmax(0,1fr)}
+  .room{min-height:268px}
+  .site__row{grid-template-columns:minmax(0,1fr)}
+  .dig{max-width:340px; justify-self:center; width:100%}
+  .trailer-strip{display:none}
+  .company,.me .who,.btn .long{display:none}
+  .topbar__in{gap:8px}
+  .brand{font-size:17px}
+  .stage__title{font-size:22px}
+  .drawer{top:auto; height:calc(100% - 28px); border-radius:18px 18px 0 0; border-left:0; transform:translateY(105%)}
+  .modal{padding:0; place-items:end stretch}
+  .modal__card{width:100%; max-height:calc(100% - 20px); border-radius:18px 18px 0 0}
+  .brief__cols,.grid2,.planitem__row{grid-template-columns:1fr}
+  .rail{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important}
+}
+</style>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient>
+  </defs>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4-4L6 21"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></symbol>
+  <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M2 2l20 20M8.5 16.4a5 5 0 0 1 7 0M5 12.6a10 10 0 0 1 5.2-2.6M19 12.6a10 10 0 0 0-2.3-1.6M2 8.8a15 15 0 0 1 4.2-2.7M10.7 5a15 15 0 0 1 11.3 3.8M12 20h.01"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z"/></symbol>
+  <symbol id="i-hat" viewBox="0 0 24 24"><path d="M2 18h20M4 18v-2a8 8 0 0 1 16 0v2M10 8V5h4v3"/></symbol>
+  <symbol id="i-asst" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5" fill="none" stroke="#14213D" stroke-width="2"/><path d="M15.5 3.5v17" stroke="#14213D" stroke-width="2.4"/><path d="M8.5 9h4M8.5 12.5h4" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="topbar__in">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="3" width="22" height="26" rx="3.5" fill="#F2C230" stroke="#14213D" stroke-width="2"/><rect x="20.5" y="3" width="2.8" height="26" fill="#14213D"/><path d="M9.5 10.5h8M9.5 15h8M9.5 19.5h5" stroke="#14213D" stroke-width="1.9" stroke-linecap="round"/></svg>
+      Fieldbook
+    </div>
+    <div class="company"><b>Northfork Civil <span class="sample">Sample data</span></b><span>Owner view</span></div>
+    <div class="topbar__sp"></div>
+    <button class="btn btn--ghost" id="hireBtn" data-act="hire" aria-label="Add a person">
+      <svg class="ic" aria-hidden="true"><use href="#i-user-plus"/></svg><span class="long">Add a person</span>
+    </button>
+    <button class="btn btn--primary" id="newProjectBtn" data-act="new-project">
+      <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>New project
+    </button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="stage">
+    <div class="stage__head">
+      <div>
+        <h1 class="stage__title">Your office</h1>
+        <p class="stage__sub" id="stageSub">Tue, Oct 20, 2026</p>
+      </div>
+      <p class="legend">
+        <span><span class="asst"><svg aria-hidden="true"><use href="#i-asst"/></svg></span>Every desk is an Assistant working for a real person. Tap one to manage them.</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg>Folders carry reports to the in-tray</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Approved work is locked for good</span>
+      </p>
+    </div>
+
+    <div class="building" id="building">
+      <div class="roof">
+        <div class="roof__sign">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="3" width="22" height="26" rx="3.5" fill="#F2C230" stroke="#14213D" stroke-width="2"/><rect x="20.5" y="3" width="2.8" height="26" fill="#14213D"/><path d="M9.5 10.5h8M9.5 15h8M9.5 19.5h5" stroke="#14213D" stroke-width="1.9" stroke-linecap="round"/></svg>
+          Northfork Civil
+        </div>
+        <svg class="antenna" id="antenna" viewBox="0 0 64 52" aria-hidden="true">
+          <path d="M32 52V20" class="s-inkline" stroke-width="3"/>
+          <path d="M24 52l8-24 8 24M27 42h10" class="s-inkline" stroke-width="2"/>
+          <circle cx="32" cy="17" r="4.5" fill="#F2C230" stroke="#14213D" stroke-width="1.5"/>
+          <g class="arcs s-inkline" stroke-width="2.2" stroke-linecap="round"><path class="a1" d="M23 11q9-9 18 0"/><path class="a2" d="M17 6q15-14 30 0"/></g>
+        </svg>
+      </div>
+
+      <div class="floor">
+        <section class="room" id="room-owner" style="--wall:var(--wall-4)" aria-label="Owner's office">
+          <span class="room__sign">Owner</span>
+          <svg class="decor" viewBox="0 0 92 68" style="left:14px;top:46px;width:92px" aria-hidden="true">
+            <defs><clipPath id="cw1"><rect x="6" y="6" width="80" height="56"/></clipPath></defs>
+            <rect x="2" y="2" width="88" height="64" rx="3" class="s-frame"/>
+            <g clip-path="url(#cw1)">
+              <rect x="6" y="6" width="80" height="56" fill="url(#gSky)"/>
+              <g class="s-stars"><circle cx="18" cy="14" r="1"/><circle cx="60" cy="19" r="1.2"/><circle cx="76" cy="11" r=".9"/><circle cx="38" cy="25" r=".8"/></g>
+              <g class="drift"><ellipse cx="22" cy="20" rx="10" ry="4.5" class="s-cloud"/><ellipse cx="30" cy="17" rx="7" ry="5" class="s-cloud"/></g>
+              <path d="M6 62V47h8v-9h8v13h5V41h11v21zM52 62V49h9v-7h8v20z" class="s-city"/>
+              <circle cx="80" cy="54" r="8" class="s-tree"/>
+            </g>
+            <path d="M46 6v56M6 34h80" class="s-mull"/>
+          </svg>
+          <svg class="decor" viewBox="0 0 56 44" style="right:16px;top:50px;width:56px" aria-hidden="true">
+            <rect x="2" y="2" width="52" height="40" rx="2" fill="#8B6B47"/><rect x="6" y="6" width="44" height="32" fill="#FFFDF7"/>
+            <text x="28" y="22" text-anchor="middle" style="font:700 10px var(--cond); letter-spacing:.08em" fill="#14213D">P.E.</text>
+            <path d="M14 29h20" stroke="#5B6475" stroke-width="1.2"/><circle cx="40" cy="30" r="4.5" fill="#F2C230" stroke="#14213D" stroke-width="1"/>
+          </svg>
+          <svg class="decor clock" viewBox="0 0 36 36" style="right:84px;top:52px;width:30px" aria-hidden="true"><circle cx="18" cy="18" r="16" class="face"/><line class="hh" x1="18" y1="18" x2="18" y2="10"/><line class="mh" x1="18" y1="18" x2="18" y2="6"/><circle cx="18" cy="18" r="1.8" class="s-ink"/></svg>
+          <div class="room__floor"></div>
+          <div class="room__row"><div class="desks" id="desks-owner"></div>
+            <span class="plant" aria-hidden="true"><svg viewBox="0 0 44 72"><g class="leaves"><path d="M22 42C8 36 6 20 12 10c6 10 10 18 10 32z" fill="#5E8C5A"/><path d="M22 42c14-6 18-20 12-32-6 10-12 20-12 32z" fill="#6E9E64"/><path d="M22 44c-2-16 0-28 4-38 4 12 2 26-4 38z" fill="#4E7A4B"/></g><path d="M10 46h24l-3 24H13z" fill="#C46A43" stroke="#14213D" stroke-width="1.5"/></svg></span>
+          </div>
+        </section>
+
+        <section class="room room--plan" id="room-plan" style="--wall:var(--wall-1)" aria-label="Plan room">
+          <span class="room__sign">Plan room</span>
+          <div class="board" id="board"><div class="board__sheets" id="sheets"></div></div>
+          <div class="room__floor"></div>
+          <div class="room__row" style="justify-content:space-around">
+            <span class="ptable" id="ptable" aria-hidden="true">
+              <svg viewBox="0 0 150 92">
+                <path d="M16 50h118l12 20H4z" class="d-top" style="fill:var(--desk-top)" stroke="#14213D" stroke-width="1.5"/>
+                <rect x="4" y="70" width="142" height="6" style="fill:var(--desk-front)"/>
+                <rect x="12" y="76" width="7" height="16" style="fill:var(--desk-front)"/><rect x="131" y="76" width="7" height="16" style="fill:var(--desk-front)"/>
+                <g class="bp">
+                  <path d="M26 52h96l8 15H18z" fill="#2D5C9B" stroke="none" style="stroke-dasharray:none"/>
+                  <path d="M30 63q20-8 40-2t42-5" stroke="#FFFFFF" stroke-width="1.6" fill="none"/>
+                  <path d="M40 55l4 10M70 54l2 11M100 54l-1 11" stroke="#BFD4F0" stroke-width=".9" fill="none"/>
+                </g>
+                <g class="tube"><rect x="30" y="54" width="86" height="9" rx="4.5" fill="#DCE6F2" stroke="#2D5C9B" stroke-width="1.2"/><ellipse cx="116" cy="58.5" rx="2.2" ry="4.5" fill="#2D5C9B"/></g>
+              </svg>
+            </span>
+            <span class="cabinet" id="cabinet" aria-hidden="true">
+              <svg viewBox="0 0 60 104">
+                <rect x="2" y="2" width="56" height="100" rx="3" fill="#7D8CA3" stroke="#14213D" stroke-width="2"/>
+                <g class="dr dr1"><rect x="7" y="8" width="46" height="27" rx="2" fill="#97A4B8" stroke="#14213D" stroke-width="1.2"/><rect x="22" y="14" width="16" height="4" rx="2" fill="#14213D"/><rect x="19" y="23" width="22" height="7" fill="#FFFFFF"/><text x="30" y="29" text-anchor="middle" style="font:600 5px var(--mono)" fill="#14213D">PLANS</text></g>
+                <g class="dr dr2"><rect x="7" y="39" width="46" height="27" rx="2" fill="#97A4B8" stroke="#14213D" stroke-width="1.2"/><rect x="22" y="45" width="16" height="4" rx="2" fill="#14213D"/><rect x="19" y="54" width="22" height="7" fill="#FFFFFF"/><text x="30" y="60" text-anchor="middle" style="font:600 5px var(--mono)" fill="#14213D">SPECS</text></g>
+                <g class="dr dr3"><rect x="7" y="70" width="46" height="27" rx="2" fill="#97A4B8" stroke="#14213D" stroke-width="1.2"/><rect x="22" y="76" width="16" height="4" rx="2" fill="#14213D"/><rect x="19" y="85" width="22" height="7" fill="#FFFFFF"/><text x="30" y="91" text-anchor="middle" style="font:600 5px var(--mono)" fill="#14213D">BIDS</text></g>
+              </svg>
+              <span class="cab-count mono" id="cabCount" hidden></span>
+            </span>
+          </div>
+        </section>
+
+        <section class="room" id="room-pm" style="--wall:var(--wall-2)" aria-label="Project manager's office">
+          <span class="room__sign">Project manager</span>
+          <svg class="decor clock" viewBox="0 0 36 36" style="left:16px;top:50px;width:30px" aria-hidden="true"><circle cx="18" cy="18" r="16" class="face"/><line class="hh" x1="18" y1="18" x2="18" y2="10"/><line class="mh" x1="18" y1="18" x2="18" y2="6"/><circle cx="18" cy="18" r="1.8" class="s-ink"/></svg>
+          <svg class="decor" viewBox="0 0 124 72" style="right:14px;top:42px;width:124px" aria-hidden="true">
+            <rect x="2" y="2" width="120" height="62" rx="3" fill="#FFFFFF" stroke="#14213D" stroke-width="2"/>
+            <text x="10" y="19" style="font:600 10px var(--cond)" fill="#14213D">Line A test · Wed 7 AM</text>
+            <text x="10" y="33" style="font:600 10px var(--cond)" fill="#3B5B8C">Pave after test passes</text>
+            <path d="M10 44q14-6 28 0t28 0" stroke="#B42318" stroke-width="1.4" fill="none"/>
+            <rect x="84" y="36" width="28" height="22" fill="#F2C230" transform="rotate(5 98 47)"/>
+            <text x="98" y="50" text-anchor="middle" style="font:600 7px var(--mono)" fill="#14213D" transform="rotate(5 98 47)">72 SVC</text>
+            <rect x="34" y="64" width="56" height="5" rx="2" fill="#9AA3B2"/>
+          </svg>
+          <div class="room__floor"></div>
+          <div class="room__row"><div class="desks" id="desks-pm"></div>
+            <button class="intray" id="intray" data-act="open-intray" aria-label="In-tray">
+              <svg viewBox="0 0 78 64" aria-hidden="true">
+                <g id="intrayStack"></g>
+                <path d="M10 40h58l-4 8H14z" fill="#5B6475" stroke="#14213D" stroke-width="1.4"/>
+                <rect x="6" y="48" width="66" height="5" rx="1" style="fill:var(--desk-top)"/>
+                <rect x="12" y="53" width="5" height="11" style="fill:var(--desk-front)"/><rect x="61" y="53" width="5" height="11" style="fill:var(--desk-front)"/>
+              </svg>
+              <span class="intray__lbl"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg>In-tray <span class="mono" id="intrayCount">0</span></span>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div class="floor">
+        <section class="room" id="room-lobby" style="--wall:var(--wall-3)" aria-label="Lobby">
+          <span class="room__sign">Lobby</span>
+          <div class="door" id="frontDoor" aria-hidden="true">
+            <svg viewBox="0 0 58 126">
+              <rect x="2" y="2" width="54" height="124" class="s-frame"/>
+              <rect x="6" y="6" width="46" height="120" fill="url(#gSky)"/>
+              <rect x="6" y="100" width="46" height="26" fill="#9DBB7A"/>
+              <g class="door-panel"><rect x="6" y="6" width="46" height="120" class="s-glass" stroke="#14213D" stroke-width="1.5"/><path d="M12 14l10 30M18 14l6 18" stroke="#FFFFFF" stroke-width="2" opacity=".6"/><rect x="43" y="60" width="3.5" height="18" rx="1.7" fill="#14213D"/></g>
+            </svg>
+          </div>
+          <div class="elev" id="elevator" aria-hidden="true">
+            <svg viewBox="0 0 66 130">
+              <defs><clipPath id="cEl"><rect x="7" y="18" width="52" height="112"/></clipPath></defs>
+              <rect x="2" y="13" width="62" height="117" class="s-frame"/>
+              <rect x="22" y="1" width="22" height="11" rx="2" fill="#14213D"/>
+              <text class="el-num" id="elevNum" x="33" y="9.5" text-anchor="middle">1</text>
+              <rect x="7" y="18" width="52" height="112" fill="#F6E7B8"/>
+              <g clip-path="url(#cEl)"><g class="el-l"><rect x="7" y="18" width="26" height="112" fill="#B8C2CF" stroke="#14213D" stroke-width="1.2"/></g><g class="el-r"><rect x="33" y="18" width="26" height="112" fill="#B8C2CF" stroke="#14213D" stroke-width="1.2"/></g></g>
+              <circle cx="62" cy="70" r="0" fill="none"/>
+            </svg>
+          </div>
+          <div class="room__floor"></div>
+          <div class="room__row">
+            <button class="hire-sign" data-act="hire" aria-label="Add a person to the office">
+              <svg viewBox="0 0 96 86" aria-hidden="true">
+                <path d="M20 84 48 6l28 78" stroke="#8B6B47" stroke-width="4" fill="none"/>
+                <rect x="18" y="14" width="60" height="50" rx="3" fill="#14213D"/>
+                <text x="48" y="34" text-anchor="middle" style="font:700 11px var(--cond); letter-spacing:.12em" fill="#F2C230">NOW</text>
+                <text x="48" y="48" text-anchor="middle" style="font:700 11px var(--cond); letter-spacing:.12em" fill="#F2C230">HIRING</text>
+                <path d="M30 55h36" stroke="#FFFFFF" stroke-width="1.5" opacity=".6"/>
+              </svg>
+              <span><svg class="ic" aria-hidden="true"><use href="#i-user-plus"/></svg>Add a person</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="room" id="room-design" style="--wall:var(--wall-3)" aria-label="Design studio">
+          <span class="room__sign">Design studio</span>
+          <svg class="decor" viewBox="0 0 92 68" style="right:16px;top:46px;width:92px" aria-hidden="true">
+            <defs><clipPath id="cw2"><rect x="6" y="6" width="80" height="56"/></clipPath></defs>
+            <rect x="2" y="2" width="88" height="64" rx="3" class="s-frame"/>
+            <g clip-path="url(#cw2)">
+              <rect x="6" y="6" width="80" height="56" fill="url(#gSky)"/>
+              <g class="s-stars"><circle cx="22" cy="12" r="1"/><circle cx="54" cy="22" r="1.1"/><circle cx="72" cy="14" r=".9"/></g>
+              <g class="drift drift--b"><ellipse cx="30" cy="22" rx="11" ry="4.5" class="s-cloud"/><ellipse cx="38" cy="19" rx="7" ry="5" class="s-cloud"/></g>
+              <path d="M6 62V50h10v-6h9v18zM40 62V45h12v17zM62 62V52h9v-8h9v18z" class="s-city"/>
+            </g>
+            <path d="M46 6v56M6 34h80" class="s-mull"/>
+          </svg>
+          <svg class="decor" viewBox="0 0 92 44" style="left:122px;top:58px;width:92px" aria-hidden="true">
+            <rect x="2" y="2" width="88" height="38" rx="2" fill="#2D5C9B" stroke="#14213D" stroke-width="2"/>
+            <path d="M8 30q14-16 30-6t44-12" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+            <path d="M8 10h76M8 20h76" stroke="#BFD4F0" stroke-width=".6" opacity=".6"/>
+            <circle cx="38" cy="24" r="2.5" fill="#F2C230"/>
+          </svg>
+          <div class="room__floor"></div>
+          <div class="room__row"><div class="desks" id="desks-design"></div>
+            <span class="plotter" aria-hidden="true">
+              <svg viewBox="0 0 110 82">
+                <rect x="4" y="18" width="102" height="24" rx="5" fill="#3A4256" stroke="#14213D" stroke-width="1.5"/>
+                <rect x="10" y="42" width="6" height="38" fill="#3A4256"/><rect x="94" y="42" width="6" height="38" fill="#3A4256"/>
+                <rect x="8" y="36" width="94" height="4" fill="#20263A"/>
+                <g class="paper"><rect x="20" y="40" width="70" height="30" fill="#FFFFFF" stroke="#C9D3DF"/><path d="M27 48h40M27 55h28M73 46v18M60 62h22" stroke="#2D5C9B" stroke-width="1.3"/></g>
+                <circle cx="96" cy="27" r="2.4" fill="#62C08A"/><rect x="14" y="25" width="34" height="5" rx="2" fill="#20263A"/>
+              </svg>
+            </span>
+          </div>
+        </section>
+
+        <section class="room" id="room-qaqc" style="--wall:var(--wall-1)" aria-label="QA/QC">
+          <span class="room__sign">QA/QC</span>
+          <svg class="decor" viewBox="0 0 104 66" style="right:14px;top:44px;width:104px" aria-hidden="true">
+            <rect x="2" y="2" width="100" height="62" rx="2" fill="none" class="s-inkline" stroke-width="2"/>
+            <path d="M2 33h100" class="s-inkline" stroke-width="2"/>
+            <g><rect x="8" y="8" width="8" height="24" fill="#B42318"/><rect x="17" y="10" width="8" height="22" fill="#3B5B8C"/><rect x="26" y="7" width="9" height="25" fill="#2F7D4F"/><rect x="36" y="11" width="7" height="21" fill="#C9A15B"/><rect x="44" y="9" width="8" height="23" fill="#5B6475"/><rect x="60" y="14" width="26" height="6" rx="1" fill="#E7E2D9" transform="rotate(-18 73 17)"/></g>
+            <g><rect x="8" y="39" width="9" height="24" fill="#3B5B8C"/><rect x="18" y="41" width="8" height="22" fill="#C9A15B"/><rect x="27" y="38" width="8" height="25" fill="#B42318"/><rect x="62" y="40" width="10" height="23" fill="#2F7D4F"/><rect x="73" y="42" width="8" height="21" fill="#5B6475"/><rect x="82" y="39" width="9" height="24" fill="#3B5B8C"/></g>
+          </svg>
+          <svg class="decor clock" viewBox="0 0 36 36" style="left:18px;top:52px;width:30px" aria-hidden="true"><circle cx="18" cy="18" r="16" class="face"/><line class="hh" x1="18" y1="18" x2="18" y2="10"/><line class="mh" x1="18" y1="18" x2="18" y2="6"/><circle cx="18" cy="18" r="1.8" class="s-ink"/></svg>
+          <div class="room__floor"></div>
+          <div class="room__row"><div class="desks" id="desks-qaqc"></div>
+            <span class="plant" aria-hidden="true"><svg viewBox="0 0 44 72"><g class="leaves"><path d="M22 42C10 38 4 24 8 14c8 8 12 16 14 28z" fill="#6E9E64"/><path d="M22 42c12-4 18-18 14-28-8 8-12 16-14 28z" fill="#5E8C5A"/><path d="M22 44c-3-14-1-26 2-36 5 12 4 24-2 36z" fill="#4E7A4B"/></g><path d="M11 46h22l-2 24H13z" fill="#3B5B8C" stroke="#14213D" stroke-width="1.5"/></svg></span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section class="site" id="site" aria-label="Oak Hollow job site">
+      <div class="site__sky" aria-hidden="true">
+        <svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMax slice">
+          <circle class="sun" cx="900" cy="56" r="26" fill="#F2C230"/>
+          <g class="moon"><circle cx="900" cy="56" r="20" fill="#E9E4D4"/><circle cx="910" cy="50" r="18" style="fill:var(--sky-top)"/></g>
+          <g class="s-stars"><circle cx="120" cy="40" r="1.4"/><circle cx="340" cy="24" r="1.2"/><circle cx="520" cy="60" r="1"/><circle cx="700" cy="30" r="1.3"/><circle cx="820" cy="96" r="1"/></g>
+          <g class="drift" style="animation-duration:60s"><ellipse cx="200" cy="50" rx="40" ry="12" class="s-cloud"/><ellipse cx="232" cy="42" rx="26" ry="14" class="s-cloud"/></g>
+          <path d="M0 220q120-70 260-30t260-10 250 20 230-30v130H0z" style="fill:var(--hill)"/>
+          <path d="M0 250q160-40 330-10t340 0 330-20v80H0z" style="fill:var(--hill2)"/>
+        </svg>
+      </div>
+      <div class="site__head">
+        <span class="site__sign"><svg class="ic" aria-hidden="true"><use href="#i-hat"/></svg>Oak Hollow job site</span>
+        <span class="pill pill--none" id="siteWeather"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg>71°F · dry</span>
+      </div>
+      <div class="site__row">
+        <div class="dig" aria-hidden="true">
+          <svg viewBox="0 0 260 176">
+            <rect x="0" y="150" width="260" height="26" style="fill:var(--ground-2)"/>
+            <rect x="-5" y="156" width="190" height="9" rx="4.5" fill="#3A73B5" stroke="#14213D" stroke-width="1.2"/>
+            <path d="M184 150h76v26h-76z" style="fill:var(--ground)"/>
+            <g class="exc">
+              <rect x="96" y="132" width="120" height="20" rx="10" fill="#3A3F4B"/>
+              <circle cx="108" cy="142" r="6" fill="#6B7385"/><circle cx="156" cy="142" r="6" fill="#6B7385"/><circle cx="204" cy="142" r="6" fill="#6B7385"/>
+              <rect x="104" y="94" width="104" height="38" rx="6" fill="#E9A93B" stroke="#14213D" stroke-width="2"/>
+              <rect x="150" y="66" width="48" height="36" rx="5" fill="#E9A93B" stroke="#14213D" stroke-width="2"/>
+              <rect x="156" y="72" width="34" height="22" rx="2" class="s-glass" stroke="#14213D" stroke-width="1.2"/>
+              <rect x="112" y="104" width="30" height="6" rx="3" fill="#14213D" opacity=".25"/>
+              <g class="boom">
+                <path d="M152 104 98 44l10-8 54 60z" fill="#E9A93B" stroke="#14213D" stroke-width="2"/>
+                <g class="arm">
+                  <path d="M98 40 56 126l10 4 42-86z" fill="#E9A93B" stroke="#14213D" stroke-width="2"/>
+                  <path d="M46 124q4 17 25 12l-6-15z" fill="#5B6475" stroke="#14213D" stroke-width="1.5"/>
+                  <circle cx="103" cy="40" r="3.5" fill="#14213D"/>
+                </g>
+              </g>
+            </g>
+            <g><rect x="226" y="112" width="3" height="40" fill="#C9A15B"/><rect x="212" y="102" width="34" height="14" rx="1" fill="#FFFFFF" stroke="#14213D" stroke-width="1.2"/><text class="sta" x="229" y="112" text-anchor="middle">15+20</text></g>
+            <g><rect x="16" y="124" width="3" height="28" fill="#C9A15B"/><rect x="2" y="114" width="34" height="14" rx="1" fill="#FFFFFF" stroke="#14213D" stroke-width="1.2"/><text class="sta" x="19" y="124" text-anchor="middle">12+00</text></g>
+            <path d="M228 152l-10-20h20z" fill="#F07F1E"/><rect x="221" y="140" width="14" height="3" fill="#FFFFFF"/>
+          </svg>
+        </div>
+
+        <div class="trailer">
+          <section class="room room--trailer" id="room-trailer" aria-label="Site trailer">
+            <span class="room__sign">Site trailer</span>
+            <svg class="decor clock" viewBox="0 0 36 36" style="right:18px;top:14px;width:28px" aria-hidden="true"><circle cx="18" cy="18" r="16" class="face"/><line class="hh" x1="18" y1="18" x2="18" y2="10"/><line class="mh" x1="18" y1="18" x2="18" y2="6"/><circle cx="18" cy="18" r="1.8" class="s-ink"/></svg>
+            <svg class="decor trailer-strip" viewBox="0 0 140 40" style="left:130px;top:12px;width:140px" aria-hidden="true">
+              <rect x="1" y="1" width="138" height="34" rx="2" fill="#FFFFFF" stroke="#14213D" stroke-width="1.5"/>
+              <path d="M8 26h124" stroke="#3A73B5" stroke-width="3"/>
+              <g style="font:600 7px var(--mono)" fill="#14213D"><text x="8" y="14">12+00</text><text x="50" y="14">13+00</text><text x="92" y="14">14+00</text></g>
+              <path d="M8 26h96" stroke="#2F7D4F" stroke-width="3"/>
+              <circle cx="104" cy="26" r="3" fill="#F2C230" stroke="#14213D" stroke-width="1"/>
+            </svg>
+            <div class="room__floor"></div>
+            <div class="room__row"><div class="desks" id="desks-trailer"></div></div>
+          </section>
+          <div class="trailer__wheels" aria-hidden="true"><i></i><i></i></div>
+        </div>
+
+        <div class="gatezone">
+          <section class="room room--gate" id="room-gate" aria-label="Contractor gate">
+            <div class="fence" aria-hidden="true"></div>
+            <span class="room__sign">Contractor gate</span>
+            <div class="room__floor"></div>
+            <div class="room__row"><div class="desks" id="desks-gate"></div></div>
+          </section>
+          <span class="truck" id="truck" aria-hidden="true">
+            <svg viewBox="0 0 150 72">
+              <path d="M8 34h70V18q0-6 6-6h22q5 0 8 4l12 18h14q6 0 6 6v16H8z" fill="#F4F4F0" stroke="#14213D" stroke-width="2"/>
+              <path d="M88 18h16l10 16H88z" class="s-glass" stroke="#14213D" stroke-width="1.5"/>
+              <rect class="tdoor" x="84" y="16" width="30" height="40" fill="none" stroke="#14213D" stroke-width="1.2"/>
+              <rect x="8" y="40" width="70" height="4" fill="#3B5B8C"/>
+              <circle cx="34" cy="58" r="10" fill="#2B303B" stroke="#5B6475" stroke-width="3"/><circle cx="114" cy="58" r="10" fill="#2B303B" stroke="#5B6475" stroke-width="3"/>
+              <rect x="136" y="38" width="6" height="5" rx="1" fill="#F2C230"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="site__ground"></div>
+    </section>
+  </div>
+
+  <aside class="rail" aria-label="Today">
+    <section class="card">
+      <div class="card__head">
+        <div>
+          <div class="eyebrow">Today</div>
+          <div class="today__date">Tue, Oct 20 · <b class="mono" id="simClock">2:05 PM</b></div>
+        </div>
+        <button class="live" id="liveBtn" aria-pressed="true" data-act="toggle-live"><i></i><span>Live</span></button>
+      </div>
+      <h2 class="h3" style="margin-bottom:10px">Needs you</h2>
+      <ul class="needs" id="needs"></ul>
+    </section>
+    <section class="card">
+      <div class="card__head"><h2 class="h3">Projects</h2></div>
+      <div class="projlist" id="projlist"></div>
+    </section>
+    <section class="card">
+      <div class="card__head"><h2 class="h3">Field book</h2><span class="eyebrow">Newest first</span></div>
+      <ol class="log" id="log"></ol>
+    </section>
+  </aside>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+  <div class="drawer__head">
+    <div id="drawerLead"></div>
+    <div class="drawer__titles">
+      <div class="eyebrow" id="drawerEyebrow"></div>
+      <h2 class="drawer__title" id="drawerTitle"></h2>
+      <p class="drawer__sub" id="drawerSub"></p>
+    </div>
+    <button class="iconbtn" data-act="close-drawer" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="drawer__body" id="drawerBody"></div>
+  <div class="drawer__foot" id="drawerFoot"></div>
+</aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+  <div class="modal__card" id="modalCard">
+    <div class="modal__head">
+      <div class="drawer__titles">
+        <div class="eyebrow" id="modalEyebrow"></div>
+        <h2 class="drawer__title" id="modalTitle"></h2>
+        <p class="drawer__sub" id="modalSub"></p>
+      </div>
+      <button class="iconbtn" data-act="close-modal" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
+    <div class="modal__foot" id="modalFoot"></div>
+  </div>
+</div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<div id="fx" aria-hidden="true"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= helpers ================= */
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const sleep = (ms) => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 20) : ms));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n) => Number(n).toLocaleString('en-US');
+const ic = (name, cls = '') => `<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const asstBadge = () => `<span class="asst"><svg aria-hidden="true"><use href="#i-asst"/></svg></span>`;
+const make = (tag, cls, html) => { const el = document.createElement(tag); if (cls) el.className = cls; if (html != null) el.innerHTML = html; return el; };
+const fx = $('#fx');
+function docRect(el) { const r = el.getBoundingClientRect(); return { left: r.left + scrollX, top: r.top + scrollY, width: r.width, height: r.height, right: r.right + scrollX, bottom: r.bottom + scrollY, cx: r.left + scrollX + r.width / 2, cy: r.top + scrollY + r.height / 2 }; }
+function fxSize() { fx.style.height = document.documentElement.scrollHeight + 'px'; }
+function hash(str) {
+  let h1 = 0x811c9dc5, h2 = 0x01000193;
+  for (let i = 0; i < str.length; i++) { h1 = Math.imul(h1 ^ str.charCodeAt(i), 16777619) >>> 0; h2 = Math.imul(h2 + str.charCodeAt(i), 2246822519) >>> 0; }
+  const hex = (h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0'));
+  return `#${hex.slice(0, 4)}…${hex.slice(-3)}`;
+}
+const first = (p) => p.name === 'You' ? 'you' : p.name.includes('.') ? p.name : p.name.split(' ')[0];
+
+/* ================= reference data ================= */
+const ROLES = {
+  owner: { label: 'Owner', room: 'owner', can: 'Sees every job and every person, and answers questions across all of them.', needs: 'Nothing. You have the final say.' },
+  pm: { label: 'Project manager', room: 'pm', can: 'Checks each report against the original files and the plan, then drafts a short review with flags and questions.', needs: 'Approving. The Assistant never approves on its own.' },
+  engineer: { label: 'Design engineer', room: 'design', can: 'Tracks calcs, design decisions and spec sections, and drafts answers to RFIs.', needs: 'Anything that leaves the company.' },
+  cad: { label: 'CAD tech', room: 'design', can: 'Counts sheets drafted against the sheet list and files markups where they belong.', needs: 'Sheet counts, before they count toward the submittal.' },
+  qaqc: { label: 'QA/QC reviewer', room: 'qaqc', can: 'Logs review comments by sheet and checks that each one is closed out.', needs: 'Marking a set ready to submit.' },
+  crew: { label: 'Crew lead', room: 'trailer', field: true, can: 'Turns photos, voice notes and texts into a daily progress report. Asks “Which stations?” when it can’t tell.', needs: 'Every quantity, before it counts toward progress.' },
+  inspector: { label: 'Inspector', room: 'trailer', field: true, can: 'Logs inspections, tests and CCTV runs with photos, and flags anything that doesn’t match the plan.', needs: 'Pass or fail results and quantities.' },
+  contractor: { label: 'Contractor', room: 'gate', field: true, external: true, can: 'Reports on their own scope only. Can’t see other jobs, people or prices.', needs: 'Every quantity and every change.' },
+};
+const ROLE_ORDER = ['pm', 'engineer', 'cad', 'qaqc', 'crew', 'inspector', 'contractor'];
+const ROOM_LABEL = { owner: 'Owner’s office', pm: 'Project manager’s office', design: 'Design studio', qaqc: 'QA/QC', trailer: 'Site trailer', gate: 'Contractor gate' };
+const FIELD_HAT = { crew: '#F4F4F0', inspector: '#3B6FB6', contractor: '#E46B1F' };
+const SKINS = ['#F3D2B3', '#EAC39B', '#D9A47A', '#C68642', '#A86B46', '#8D5A3B', '#6B4430'];
+const HAIRS = ['short', 'bun', 'long', 'curly', 'buzz'];
+const HAIRC = ['#1E1B1A', '#3A2618', '#6B4B32', '#8B4A2B', '#C9A15B', '#2B211C'];
+const SHIRTS = ['#2F6F73', '#6E94C8', '#7A9E7E', '#8C3B4A', '#5B4B8A', '#3F5A7A'];
+const PROJ_COLORS = ['#1F6F8B', '#9C5A2E', '#5B4B8A', '#3F7F6E', '#8A3B5C'];
+
+/* ================= state (sample data) ================= */
+const S = {
+  seq: 100,
+  people: [
+    { id: 'you', name: 'You', role: 'owner', device: 'laptop', where: 'Main office', look: { skin: '#E8B98F', hair: 'gray', hairColor: '#9AA0A8', shirt: '#2A3A5E', glasses: true, prop: 'mug' }, bubble: { kind: 'idle', text: 'Ask me about any job', icon: 'chat' }, inputs: [] },
+    { id: 'brooks', name: 'Dana Brooks', role: 'pm', device: 'laptop and phone', where: 'Main office', contact: 'dana@northfork.example', look: { skin: '#8D5A3B', hair: 'bun', hairColor: '#1F1A17', shirt: '#2F6F73', prop: 'mug' }, bubble: { kind: 'work', text: 'Checking 4 reports' }, inputs: [{ kind: 'text', text: '“Hold paving until Line A passes the test”', at: '9:12 AM' }] },
+    { id: 'chen', name: 'D. Chen', role: 'cad', device: 'laptop', where: 'Design studio', contact: 'dchen@northfork.example', look: { skin: '#F1C9A0', hair: 'long', hairColor: '#1E1B1A', shirt: '#7A9E7E', glasses: true, prop: 'mug' }, bubble: { kind: 'work', text: 'Drafting sheet W-42' }, inputs: [{ kind: 'doc', text: 'W-38 to W-41.pdf · 4 sheets', at: '10:05 AM', chip: 'Sheet W-38' }] },
+    { id: 'novak', name: 'A. Novak', role: 'engineer', device: 'laptop', where: 'Design studio', contact: 'anovak@northfork.example', look: { skin: '#F3D2B3', hair: 'curly', hairColor: '#8B4A2B', shirt: '#6E94C8', prop: 'tube' }, bubble: { kind: 'work', text: 'Marking up spec 33 11 13' }, inputs: [{ kind: 'doc', text: 'Spec 33 11 13 markup.pdf', at: '11:48 AM', chip: 'Spec p.47' }] },
+    { id: 'singh', name: 'R. Singh', role: 'qaqc', device: 'laptop', where: 'QA/QC', contact: 'rsingh@northfork.example', look: { skin: '#A86B46', hair: 'short', hairColor: '#2A2523', beard: true, shirt: '#8C3B4A', glasses: true, prop: 'binder' }, bubble: { kind: 'work', text: 'Reviewing W-30 to W-36' }, inputs: [{ kind: 'doc', text: '90% review comments.xlsx', at: '1:02 PM', chip: 'Review log p.2' }] },
+    { id: 'ortiz', name: 'J. Ortiz', role: 'crew', device: 'phone', where: 'On site · Sta 15+20', contact: '(555) 201-0147', look: { skin: '#C68642', hair: 'short', hairColor: '#2B211C', shirt: '#4B5563', vest: '#F07F1E', hat: '#F4F4F0', prop: 'radio' }, bubble: { kind: 'pend', text: 'Submitted · waiting for Dana' }, inputs: [{ kind: 'voice', text: 'Voice note · 0:38', quote: '“Laid 320 feet today, 12+00 to 15+20. Test crew tomorrow.”', at: '1:44 PM', chip: 'Voice note · 0:38' }, { kind: 'photo', text: '12 photos · Sta 12+00 to 15+20', at: '1:42 PM', chip: 'Photo 3 · 12+40' }, { kind: 'doc', text: 'Pipe delivery ticket.pdf', at: '11:05 AM', chip: 'Delivery ticket p.1' }] },
+    { id: 'lee', name: 'K. Lee', role: 'inspector', device: 'phone', where: 'On site · MH-5', contact: '(555) 201-0188', look: { skin: '#EAC39B', hair: 'short', hairColor: '#151515', shirt: '#4B5563', vest: '#F07F1E', hat: '#3B6FB6', prop: 'radio' }, bubble: { kind: 'bad', text: 'Flagged · 2 reused photos' }, inputs: [{ kind: 'doc', text: 'CCTV report.pdf · 6 pages', at: '12:10 PM', chip: 'CCTV report p.2' }, { kind: 'photo', text: '9 photos · MH-4 to MH-7', at: '12:08 PM', chip: 'Photo 4 · MH-5' }] },
+    { id: 'alvarez', name: 'M. Alvarez', role: 'crew', device: 'phone', where: 'On site · Elm Ct', contact: '(555) 201-0163', look: { skin: '#B97A50', hair: 'long', hairColor: '#3A2618', shirt: '#4B5563', vest: '#F07F1E', hat: '#F2C230', prop: 'radio' }, bubble: { kind: 'pend', text: 'Submitted · +4 services' }, inputs: [{ kind: 'text', text: '“4 services done on Elm Ct, 2 left on the block”', at: '1:21 PM' }, { kind: 'photo', text: '4 photos · meter boxes on Elm Ct', at: '1:20 PM', chip: 'Photo 1 · 206 Elm Ct' }] },
+    { id: 'patel', name: 'S. Patel', role: 'inspector', device: 'phone', where: 'Outfall 2 · weak signal', contact: '(555) 201-0119', link: 'offline', queued: 12, look: { skin: '#9C6644', hair: 'short', hairColor: '#1D1A18', beard: true, shirt: '#4B5563', vest: '#F07F1E', hat: '#4C9A5B', prop: 'radio' }, bubble: { kind: 'offline', text: 'Offline · 12 items queued', icon: 'wifi-off' }, inputs: [{ kind: 'text', text: '12 items waiting on their phone', at: '11:30 AM' }] },
+    { id: 'ward', name: 'T. Ward', org: 'Ridgeline Paving', role: 'contractor', device: 'phone', where: 'Ridgeline Paving yard', contact: '(555) 201-0190', look: { skin: '#D9A47A', hair: 'buzz', hairColor: '#6B4B32', shirt: '#2E3440', vest: '#D7E23A', hat: '#E46B1F', prop: 'radio' }, bubble: { kind: 'idle', text: 'Waiting on Line A test', icon: 'clock' }, inputs: [{ kind: 'text', text: '“Roller and crew ready when Line A clears”', at: '8:40 AM' }] },
+  ],
+  projects: [
+    { id: 'oak', name: 'Oak Hollow Water & Sewer Replacement', short: 'Oak Hollow', client: 'City of Oak Hollow', color: '#1F6F8B', plan: 'approved', history: [] },
+  ],
+  jobs: {
+    lineA: { id: 'lineA', project: 'oak', tag: 'Line A', name: 'Line A · 8-in water main', who: 'ortiz', method: 'qty', unit: 'LF', total: 3600, done: 2230, pend: 320, note: 'Waiting on pressure test', noteTone: 'warn' },
+    sewer: { id: 'sewer', project: 'oak', tag: 'Sewer', name: 'Sewer MH-4 to MH-7 · 8-in sanitary', who: 'lee', method: 'steps', unit: '%', total: 100, done: 40, pend: 20, steps: 'Pipe laid · CCTV submitted', flag: '2 photos match ones from Oct 13' },
+    services: { id: 'services', project: 'oak', tag: 'Services', name: 'Services and meter boxes', who: 'alvarez', method: 'qty', unit: 'EA', word: 'services', total: 72, done: 46, pend: 4, idle: 'On pace' },
+    submittal: { id: 'submittal', project: 'oak', tag: '90% set', name: '90% submittal · water sheets', who: 'chen', method: 'qty', unit: 'sheets', word: 'sheets', total: 60, done: 42, pend: 4, idle: 'On pace for Nov 6' },
+    calcs: { id: 'calcs', project: 'oak', tag: 'Specs', name: 'Spec sections · 90% set', who: 'novak', method: 'qty', unit: 'sections', word: 'sections', total: 31, done: 18, pend: 0, idle: 'Marking up 33 11 13' },
+    qa: { id: 'qa', project: 'oak', tag: 'QA/QC', name: '90% set review', who: 'singh', method: 'qty', unit: 'sheets', word: 'sheets', total: 60, done: 24, pend: 0, idle: 'Reviewing W-30 to W-36' },
+    sw3p: { id: 'sw3p', project: 'oak', tag: 'SW3P', name: 'SW3P inspections', who: 'patel', method: 'qty', unit: 'weeks', word: 'weeks', total: 14, done: 6, pend: 0, note: 'Next one due Thursday', noteTone: 'none' },
+    paving: { id: 'paving', project: 'oak', tag: 'Paving', name: 'Paving restoration', who: 'ward', method: 'qty', unit: 'SY', total: 2150, done: 0, pend: 0, note: 'Starts after Line A pressure test', noteTone: 'none' },
+  },
+  inbox: [
+    { id: 'r1', who: 'ortiz', job: 'lineA', delta: 320, change: '+320 LF', where: 'Sta 12+00 to 15+20', group: 'attention', state: 'waiting', verdict: 'Matches the plan. The pressure test isn’t in yet.', claimed: ['320 LF of 8-in PVC laid', 'Sta 12+00 to 15+20', '2 gate valves set, 13+50 and 15+00'], shows: ['12 photos cover 12+00 to 15+20, GPS on line', 'Both valves visible in photos 6 and 11', 'No pressure test report attached'], missing: ['Pressure test report'], usual: '320 LF today vs. this crew’s usual 180 LF', questions: ['When is the pressure test?', 'Add today’s photos of 13+50 to 14+00?'], chips: ['Photo 3 · 12+40', 'Photo 11 · 15+00', 'Voice note · 0:38'] },
+    { id: 'r2', who: 'lee', job: 'sewer', delta: 20, change: 'CCTV · MH-4 to MH-7', group: 'flagged', state: 'waiting', verdict: '2 of 9 photos match ones submitted Oct 13.', claimed: ['CCTV run MH-4 to MH-7', 'No defects worse than grade 2'], shows: ['CCTV report covers MH-4 to MH-6 only (p.2)', 'Photos 4 and 5 match Oct 13 uploads'], missing: ['CCTV of MH-6 to MH-7', '2 new photos'], usual: 'First CCTV report on this run', questions: ['Was MH-6 to MH-7 recorded?', 'Can you retake photos 4 and 5?'], chips: ['CCTV report p.2', 'Photo 4 · MH-5', 'Photo 5 · Oct 13 match'] },
+    { id: 'r3', who: 'alvarez', job: 'services', delta: 4, change: '+4 reconnected', where: 'Elm Ct, 206 to 212', group: 'routine', state: 'waiting', verdict: 'Evidence complete. Matches the plan.', claimed: ['4 services reconnected', 'Meter boxes set, lids on'], shows: ['4 photos, one per address, GPS on Elm Ct', 'Matches rows 43 to 46 of the service list'], missing: [], usual: '4 today vs. the usual 5', questions: ['Any curb stops left open?'], chips: ['Photo 1 · 206 Elm Ct', 'Photo 4 · 212 Elm Ct'] },
+    { id: 'r4', who: 'chen', job: 'submittal', delta: 4, change: '+4 sheets', where: 'W-38 to W-41', group: 'routine', state: 'waiting', verdict: 'All 4 sheets are in the set and match the sheet list.', claimed: ['Sheets W-38 to W-41 drafted'], shows: ['4 sheets in the PDF, title blocks filled', 'Matches sheet list rows 38 to 41'], missing: [], usual: '4 today vs. the usual 3', questions: ['Are profiles on W-40 final?'], chips: ['Sheet W-38', 'Sheet W-41'] },
+  ],
+  log: [],
+  chat: [],
+};
+S.projects[0].history = [
+  { at: 'Oct 19, 4:40 PM', by: 'Dana Brooks', text: 'Line A · +260 LF · Sta 9+40 to 12+00' },
+  { at: 'Oct 16, 3:05 PM', by: 'Dana Brooks', text: 'Services · +8 reconnected' },
+  { at: 'Oct 13, 5:12 PM', by: 'Dana Brooks', text: 'Line A · +180 LF · Sta 7+60 to 9+40', amend: { at: 'Oct 14, 9:05 AM', by: 'Dana Brooks', text: 'Line A · +160 LF · Sta 7+80 to 9+40', why: 'Re-measured at the tie-in. 20 LF was counted twice.' } },
+  { at: 'Sep 28, 10:00 AM', by: 'Dana Brooks', text: 'Plan approved · 8 jobs' },
+].map(h => ({ ...h, hash: hash(h.text + h.at) }));
+
+const sim = { min: 14 * 60 + 5, live: true, pause: 0, i: 0, did: {} };
+const simTime = (m = sim.min) => { let h = Math.floor(m / 60) % 24; const mm = m % 60; const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${String(mm).padStart(2, '0')} ${ap}`; };
+const person = (id) => S.people.find(p => p.id === id);
+const jobsOf = (pid) => Object.values(S.jobs).filter(j => j.who === pid);
+const jobsOfProject = (prid) => Object.values(S.jobs).filter(j => j.project === prid);
+const project = (id) => S.projects.find(p => p.id === id);
+const pmName = () => (S.people.find(p => p.role === 'pm') || {}).name || 'the project manager';
+const pmFirst = () => { const p = S.people.find(x => x.role === 'pm'); return p ? first(p) : 'the PM'; };
+
+/* ================= progress math ================= */
+function pct(j) {
+  if (!j.total) return [0, 0];
+  const a = Math.round(j.done / j.total * 100);
+  const b = Math.round(Math.min(j.total, j.done + j.pend) / j.total * 100);
+  return [a, Math.max(a, b)];
+}
+function projPct(prid) {
+  const js = jobsOfProject(prid); if (!js.length) return [0, 0];
+  let a = 0, b = 0; js.forEach(j => { const [x, y] = pct(j); a += x; b += y; });
+  return [Math.round(a / js.length), Math.round(b / js.length)];
+}
+function qtyLabel(j) {
+  if (j.method === 'done') return j.done >= j.total ? 'Done' : 'Not done yet';
+  if (j.method === 'steps') return j.steps || `${j.done}% of steps`;
+  return `${fmt(j.done)} of ${fmt(j.total)} ${j.unit}`;
+}
+function jobStatus(j) {
+  if (!j.who) return ['warn', 'Needs someone'];
+  if (j.flag) return ['bad', j.flag];
+  if (j.note) return [j.noteTone || 'none', j.note];
+  if (j.pend > 0) return ['pend', `${fmt(j.pend)} ${j.word || j.unit} waiting for approval`];
+  return ['none', j.idle || 'Nothing new today'];
+}
+const TONE = { ok: 'check', pend: 'clock', warn: 'alert', bad: 'flag', none: 'clock' };
+const pill = (tone, text, icon) => `<span class="pill pill--${tone}">${ic(icon || TONE[tone])}${esc(text)}</span>`;
+function bar(a, b, big) {
+  return `<div class="bar" role="img" aria-label="${a}% approved${b > a ? `, ${b}% when approved` : ''}"><span class="bar__ok" style="width:${a}%"></span><span class="bar__pend" style="left:${a}%;width:${b - a}%"></span></div>
+  <div class="bar__lbl"><b class="mono">${a}%</b>${b > a ? ` · <span class="mono">${b}%</span> when approved` : ' approved'}</div>`;
+}
+
+/* ================= illustration: people ================= */
+function hairBack(L) { return L.hair === 'long' ? `<path d="M43 42Q42 22 60 22Q78 22 77 42L79 72Q60 78 41 72Z" fill="${L.hairColor}"/>` : ''; }
+function hairFront(L) {
+  const c = L.hairColor;
+  if (L.hat) return '';
+  switch (L.hair) {
+    case 'short': return `<path d="M44.5 38Q44 22 60 22.5Q76 22 75.5 38Q74 30 67 29Q59 32.5 49 30Q46 33 44.5 38Z" fill="${c}"/>`;
+    case 'bun': return `<circle cx="60" cy="20" r="6.5" fill="${c}"/><path d="M44.5 39Q44 23 60 23Q76 23 75.5 39Q71 29 60 29.5Q49 29 44.5 39Z" fill="${c}"/>`;
+    case 'long': return `<path d="M44 44Q43 23 60 23Q77 23 76 44Q74 32 66 30Q57 34 46 32Q45 37 44 44Z" fill="${c}"/>`;
+    case 'curly': return `<g fill="${c}"><circle cx="48" cy="31" r="6"/><circle cx="55" cy="26" r="6.5"/><circle cx="64" cy="25.5" r="6.5"/><circle cx="72" cy="30" r="6"/><circle cx="45.5" cy="37" r="4"/><circle cx="74.5" cy="37" r="4"/></g>`;
+    case 'buzz': return `<path d="M45.5 35Q46.5 24 60 24Q73.5 24 74.5 35Q68 29.5 60 29.5Q52 29.5 45.5 35Z" fill="${c}" opacity=".9"/>`;
+    case 'gray': return `<path d="M44.6 41Q44 31 48.5 27.5Q47 34 48.5 38ZM75.4 41Q76 31 71.5 27.5Q73 34 71.5 38Z" fill="${c}"/><path d="M49 27Q60 21 71 27Q60 25 49 27Z" fill="${c}"/>`;
+  }
+  return '';
+}
+function headFront(L) {
+  let s = `<rect x="55" y="50" width="10" height="13" rx="4" fill="${L.skin}"/>
+    <circle cx="45.5" cy="41" r="3.2" fill="${L.skin}"/><circle cx="74.5" cy="41" r="3.2" fill="${L.skin}"/>
+    <circle cx="60" cy="39" r="15.5" fill="${L.skin}"/>`;
+  if (L.beard) s += `<path d="M45.5 42Q46 56.5 60 57Q74 56.5 74.5 42Q71 50.5 60 51Q49 50.5 45.5 42Z" fill="${L.hairColor}"/>`;
+  s += hairFront(L);
+  s += `<g class="eyes"><ellipse cx="54.5" cy="41" rx="1.8" ry="2.1" fill="#14213D"/><ellipse cx="65.5" cy="41" rx="1.8" ry="2.1" fill="#14213D"/></g>
+    <circle cx="50.5" cy="46.2" r="2.6" fill="#E26D5A" opacity=".22"/><circle cx="69.5" cy="46.2" r="2.6" fill="#E26D5A" opacity=".22"/>
+    <path d="M56.5 47.6Q60 50.8 63.5 47.6" stroke="#14213D" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+  if (L.glasses) s += `<g fill="none" stroke="#14213D" stroke-width="1.3"><circle cx="54.5" cy="41" r="4.2"/><circle cx="65.5" cy="41" r="4.2"/><path d="M58.7 41h2.6"/></g>`;
+  if (L.hat) s += `<path d="M44 36Q44 20 60 20Q76 20 76 36Z" fill="${L.hat}" stroke="#14213D" stroke-width="1.2"/><path d="M60 20.6V35" stroke="#000" stroke-opacity=".14" stroke-width="3.2"/><rect x="40.5" y="34" width="39" height="4.6" rx="2.3" fill="${L.hat}" stroke="#14213D" stroke-width="1.2"/>`;
+  s += `<g class="headset"><rect x="71.5" y="37" width="6.5" height="9.5" rx="3.2" fill="#F2C230" stroke="#14213D" stroke-width="1.1"/><path d="M74.5 46.5Q74 52 67 52.5" stroke="#14213D" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle class="led" cx="66" cy="52.5" r="1.9" fill="#F2C230" stroke="#14213D" stroke-width=".9"/></g>`;
+  return s;
+}
+function torso(L) {
+  let s = `<path d="M33 104L35.5 78Q37.5 64.5 60 62.5Q82.5 64.5 84.5 78L87 104Z" fill="${L.shirt}"/>`;
+  if (L.vest) s += `<path d="M36.5 104L38 79Q39.5 68 51.5 64.5L54.5 104ZM83.5 104L82 79Q80.5 68 68.5 64.5L65.5 104Z" fill="${L.vest}"/><rect x="37.6" y="84" width="16" height="3.2" fill="#EEF2F5"/><rect x="66.4" y="84" width="16" height="3.2" fill="#EEF2F5"/>`;
+  else s += `<path d="M53.5 63L60 71L66.5 63Q60 61.5 53.5 63Z" fill="#FFFFFF" opacity=".9"/>`;
+  return s;
+}
+function propSVG(kind) {
+  switch (kind) {
+    case 'radio': return `<rect x="93" y="81" width="8" height="15" rx="2" fill="#2B303B"/><rect x="95" y="84" width="4" height="4" rx="1" fill="#62C08A"/><rect x="95.5" y="74" width="2" height="8" rx="1" fill="#2B303B"/>`;
+    case 'tube': return `<rect x="84" y="90" width="28" height="6" rx="3" fill="#DCE6F2" stroke="#2D5C9B" stroke-width="1"/><ellipse cx="112" cy="93" rx="1.6" ry="3" fill="#2D5C9B"/>`;
+    case 'binder': return `<rect x="90" y="79" width="7" height="17" rx="1" fill="#B42318"/><rect x="97.5" y="81" width="7" height="15" rx="1" fill="#3B5B8C"/><rect x="105" y="83" width="6" height="13" rx="1" fill="#2F7D4F"/>`;
+    default: return `<rect x="92" y="85" width="9.5" height="11" rx="2" fill="#FFFFFF" stroke="#14213D" stroke-width="1.1"/><path d="M101.5 87.5q4.5 1.2 0 5.6" stroke="#14213D" stroke-width="1.1" fill="none"/><path class="steam" d="M96.5 82q-2.2-3 0-6t0-6" stroke="#9AA3B2" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+  }
+}
+const deskSVG = `<rect x="5" y="96" width="110" height="7" rx="2" class="d-top"/><rect x="9" y="103" width="102" height="13" class="d-front"/><rect x="13" y="90" width="22" height="6" rx="1" fill="#FFFFFF" stroke="#C9C2B4"/><rect x="15" y="87" width="20" height="4" rx="1" fill="#F7F3EA" stroke="#C9C2B4"/>`;
+function seatedSVG(p) {
+  const L = p.look;
+  return `<svg class="fig" viewBox="0 0 120 116" aria-hidden="true" focusable="false">
+    <rect x="32" y="44" width="56" height="58" rx="14" class="chair"/>
+    <g class="bod">${hairBack(L)}${torso(L)}${headFront(L)}</g>
+    <path d="M38.5 77Q33.5 89 42 95" stroke="${L.shirt}" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M81.5 77Q86.5 89 78 95" stroke="${L.shirt}" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M47 74h26a2 2 0 0 1 2 2v20H45V76a2 2 0 0 1 2-2z" fill="#C9D1DC" stroke="#14213D" stroke-width="1.2"/>
+    <circle class="sticker" cx="60" cy="85" r="3.6" fill="#F2C230" stroke="#14213D" stroke-width=".8"/>
+    <circle class="hand-l" cx="43" cy="95" r="4.3" fill="${L.skin}"/><circle class="hand-r" cx="77" cy="95" r="4.3" fill="${L.skin}"/>
+    ${deskSVG}${propSVG(L.prop)}
+  </svg>`;
+}
+const openDeskSVG = `<svg class="fig" viewBox="0 0 120 116" aria-hidden="true"><rect x="32" y="44" width="56" height="58" rx="14" class="chair"/><circle cx="60" cy="70" r="11" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="3 3" opacity=".7"/><path d="M60 64v12M54 70h12" stroke="#FFFFFF" stroke-width="2" opacity=".8" stroke-linecap="round"/>${deskSVG}</svg>`;
+function walkerSVG(L) {
+  const vest = L.vest ? `<path d="M18.5 80L19.5 53Q21 45 27 43L28 80ZM41.5 80L40.5 53Q39 45 33 43L32 80Z" fill="${L.vest}"/><rect x="19" y="62" width="9" height="2.6" fill="#EEF2F5"/><rect x="32" y="62" width="9" height="2.6" fill="#EEF2F5"/>` : '';
+  return `<svg viewBox="0 0 60 124" aria-hidden="true">
+    <g class="w-leg w-leg-l"><rect x="21" y="74" width="8.5" height="36" rx="3.5" fill="#3A4357"/><rect x="18" y="106" width="12.5" height="6.5" rx="3" fill="#1B2130"/></g>
+    <g class="w-leg w-leg-r"><rect x="30.5" y="74" width="8.5" height="36" rx="3.5" fill="#3A4357"/><rect x="29.5" y="106" width="12.5" height="6.5" rx="3" fill="#1B2130"/></g>
+    <g class="w-arm w-arm-l"><path d="M18 47Q14 58 15 70" stroke="${L.shirt}" stroke-width="7" stroke-linecap="round" fill="none"/><circle cx="15" cy="72" r="3.6" fill="${L.skin}"/></g>
+    <g transform="translate(-30 -20)">${hairBack(L)}</g>
+    <path d="M16.5 80L18 52Q20 42 30 41Q40 42 42 52L43.5 80Z" fill="${L.shirt}"/>${vest}
+    <g class="w-arm w-arm-r"><path d="M42 47Q46 58 45 70" stroke="${L.shirt}" stroke-width="7" stroke-linecap="round" fill="none"/><circle cx="45" cy="72" r="3.6" fill="${L.skin}"/></g>
+    <g transform="translate(-30 -20)">${headFront(L)}</g>
+  </svg>`;
+}
+function avatar(p, cls = '') {
+  const L = p.look;
+  return `<span class="av ${cls}" aria-hidden="true"><svg viewBox="37 13 46 46">${hairBack(L)}${torso(L)}${headFront(L)}</svg></span>`;
+}
+
+/* ================= workstations ================= */
+const KIND_ICON = { idle: 'chat', work: 'pen', pend: 'clock', ok: 'check', warn: 'alert', bad: 'flag', offline: 'wifi-off', input: 'image' };
+function bubbleInner(b) { return `${ic(b.icon || KIND_ICON[b.kind] || 'chat')}<span class="bubble__t">${esc(b.text)}</span>`; }
+function tagsHTML(p) {
+  const js = jobsOf(p.id);
+  const shown = js.slice(0, 2).map(j => `<span class="tag" style="--c:${project(j.project).color}">${esc(j.tag)}</span>`).join('');
+  return shown + (js.length > 2 ? `<span class="tag" style="--c:var(--slate)">+${js.length - 2}</span>` : '');
+}
+function wsLabel(p) { return `${p.name}, ${ROLES[p.role].label}. Assistant: ${p.bubble.text}. Open details.`; }
+function wsEl(p) {
+  const b = make('button', 'ws');
+  b.id = 'ws-' + p.id; b.dataset.person = p.id;
+  b.style.setProperty('--d', (-(p.id.charCodeAt(0) % 7) * .55) + 's');
+  b.setAttribute('aria-label', wsLabel(p));
+  b.innerHTML = `<span class="bubble" data-kind="${p.bubble.kind}">${bubbleInner(p.bubble)}</span>
+    ${seatedSVG(p)}
+    <span class="plate"><span class="plate__name">${esc(p.name)}</span><span class="plate__role">${esc(p.org || ROLES[p.role].label)}</span></span>
+    <span class="tags">${tagsHTML(p)}</span>`;
+  b.classList.toggle('is-working', p.bubble.kind === 'work');
+  b.classList.toggle('is-offline', p.link === 'offline');
+  return b;
+}
+function openDeskEl(room) {
+  const b = make('button', 'ws ws--open');
+  b.dataset.act = 'hire'; b.dataset.room = room;
+  b.setAttribute('aria-label', `Open desk in ${ROOM_LABEL[room]}. Add a person.`);
+  b.innerHTML = `<span class="bubble" data-kind="offline">${ic('plus')}<span class="bubble__t">Open desk</span></span>${openDeskSVG}<span class="plate"><span class="plate__name">Open desk</span><span class="plate__role">Add someone</span></span><span class="tags"></span>`;
+  return b;
+}
+function renderRooms() {
+  ['owner', 'pm', 'design', 'qaqc', 'trailer', 'gate'].forEach(r => { $('#desks-' + r).innerHTML = ''; });
+  S.people.forEach(p => $('#desks-' + ROLES[p.role].room).appendChild(wsEl(p)));
+  roomCounts();
+}
+function roomCounts() { ['design', 'trailer'].forEach(r => { $('#room-' + r).dataset.n = $$('#desks-' + r + ' .ws').length; }); }
+function refreshWs(p) {
+  const ws = $('#ws-' + p.id); if (!ws) return;
+  const nw = wsEl(p); ws.replaceWith(nw); return nw;
+}
+function refreshTags(pid) {
+  const ws = $('#ws-' + pid); const p = person(pid); if (!ws || !p) return;
+  $('.tags', ws).innerHTML = tagsHTML(p);
+}
+function setBubble(pid, kind, text, icon) {
+  const p = person(pid); if (!p) return;
+  p.bubble = { kind, text, icon };
+  const ws = $('#ws-' + pid); if (!ws) return;
+  const b = $('.bubble', ws);
+  b.dataset.kind = kind; b.innerHTML = bubbleInner(p.bubble);
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+  ws.classList.toggle('is-working', kind === 'work');
+  ws.setAttribute('aria-label', wsLabel(p));
+}
+
+/* ================= props: in-tray, board, clocks ================= */
+function renderIntray() {
+  const n = S.inbox.filter(i => i.state === 'waiting').length;
+  $('#intrayCount').textContent = n;
+  $('#intray').setAttribute('aria-label', `In-tray, ${n} report${n === 1 ? '' : 's'} waiting. Open.`);
+  let s = '';
+  for (let i = 0; i < Math.min(n, 6); i++) s += `<g transform="translate(${(i % 2) * 2} ${-i * 4.6})"><path d="M16 34h12l2 2h32v6H16z" fill="${i % 2 ? '#E2B65A' : '#EBC873'}" stroke="#14213D" stroke-width=".9"/></g>`;
+  $('#intrayStack').innerHTML = s;
+}
+function sheetHTML(pr) {
+  const [a] = projPct(pr.id);
+  const badge = pr.plan === 'review' ? pill('warn', 'Plan to review', 'clock') : pr.plan === 'approved' ? pill('ok', 'Plan locked', 'lock') : '';
+  return `<button class="sheet" id="sheet-${pr.id}" data-act="open-project" data-proj="${pr.id}" style="--c:${pr.color};--rot:${pr.id === 'oak' ? '-1.5deg' : '1.2deg'}" aria-label="${esc(pr.name)}, ${a}% approved. Open project.">
+    <span class="sheet__name">${esc(pr.short)}</span><span class="sheet__bar"><i style="width:${a}%"></i></span><span class="sheet__pct mono">${a}% approved</span>${badge}</button>`;
+}
+function renderBoard() {
+  $('#sheets').innerHTML = S.projects.map(sheetHTML).join('') + `<button class="sheet sheet--add" data-act="new-project">${ic('plus')}<span>New project</span></button>`;
+}
+function updateClocks() {
+  const h = Math.floor(sim.min / 60) % 12, m = sim.min % 60;
+  $$('.clock').forEach(c => { $('.hh', c).style.transform = `rotate(${h * 30 + m * .5}deg)`; $('.mh', c).style.transform = `rotate(${m * 6}deg)`; });
+  $('#simClock').textContent = simTime();
+}
+
+/* ================= rail ================= */
+function renderNeeds() {
+  const out = [];
+  const waiting = S.inbox.filter(i => i.state === 'waiting');
+  if (waiting.length) out.push({ tone: 'pend', icon: 'inbox', text: `${waiting.length} report${waiting.length === 1 ? '' : 's'} in the in-tray`, act: 'open-intray', btn: 'Open' });
+  waiting.filter(i => i.group === 'flagged').forEach(i => out.push({ tone: 'bad', icon: 'flag', text: `${S.jobs[i.job].tag}: ${i.verdict}`, act: 'open-intray', btn: 'Review' }));
+  S.projects.filter(p => p.plan === 'review').forEach(p => out.push({ tone: 'warn', icon: 'clock', text: `${p.short} plan is waiting for your approval`, act: 'plan-review', data: `data-proj="${p.id}"`, btn: 'Review' }));
+  Object.values(S.jobs).filter(j => !j.who).forEach(j => out.push({ tone: 'warn', icon: 'alert', text: `${j.name} needs someone`, act: 'assign-job', data: `data-job="${j.id}"`, btn: 'Assign' }));
+  S.people.filter(p => p.link === 'offline').forEach(p => out.push({ tone: 'none', icon: 'wifi-off', text: `${p.name} is offline · ${p.queued} items queued. They’ll upload automatically.`, act: 'open-person', data: `data-id="${p.id}"`, btn: 'View' }));
+  $('#needs').innerHTML = out.length ? out.map(n => `<li class="need"><span class="need__ic pill--${n.tone}">${ic(n.icon)}</span><span class="need__t">${esc(n.text)}</span><button class="btn btn--ghost" data-act="${n.act}" ${n.data || ''}>${n.btn}</button></li>`).join('') : `<li class="need--empty">${ic('check')} Nothing needs you right now.</li>`;
+}
+function renderProjects() {
+  $('#projlist').innerHTML = S.projects.map(pr => { const [a, b] = projPct(pr.id); return `<button class="proj" style="--c:${pr.color}" data-act="open-project" data-proj="${pr.id}"><span class="proj__name">${esc(pr.name)}</span>${bar(a, b)}</button>`; }).join('');
+  const people = S.people.length;
+  $('#stageSub').textContent = `Tue, Oct 20, 2026 · ${people} desks · ${S.projects.length} project${S.projects.length === 1 ? '' : 's'}`;
+}
+function evKind(label) { return /^photo/i.test(label) ? 'photo' : /^voice/i.test(label) ? 'voice' : 'doc'; }
+function evChip(label) { const k = evKind(label); return `<button class="ev" data-act="evidence" data-label="${esc(label)}"><span class="ev__thumb ev__thumb--${k}">${ic(k === 'photo' ? 'image' : k === 'voice' ? 'mic' : 'file')}</span><span>${esc(label)}</span></button>`; }
+function renderLog(fresh) {
+  $('#log').innerHTML = S.log.map((e, i) => `<li class="${fresh && i === 0 ? 'new' : ''}"><time>${esc(e.t)}</time><div><span>${e.html}</span>${e.chip ? `<div class="chips">${evChip(e.chip)}</div>` : ''}</div></li>`).join('');
+}
+function addLog(html, chip, t) { S.log.unshift({ t: t || simTime(), html, chip }); S.log = S.log.slice(0, 40); renderLog(true); }
+function renderRail() { renderNeeds(); renderProjects(); renderIntray(); renderBoard(); }
+
+/* ================= toasts ================= */
+function toast(msg, icon = 'check') {
+  const el = make('div', 'toast', `${ic(icon)}<span>${esc(msg)}</span>`);
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3600);
+}
+
+/* ================= drawer + modal ================= */
+let drawerKey = null, drawerOpener = null;
+function openDrawer({ key, lead = '', eyebrow = '', title, sub = '', body, foot = '' }) {
+  const d = $('#drawer'), sc = $('#scrim');
+  if (!drawerKey) drawerOpener = document.activeElement;
+  drawerKey = key;
+  $('#drawerLead').innerHTML = lead; $('#drawerEyebrow').textContent = eyebrow;
+  $('#drawerTitle').textContent = title; $('#drawerSub').textContent = sub;
+  $('#drawerBody').innerHTML = body; $('#drawerFoot').innerHTML = foot;
+  $('#drawerBody').scrollTop = 0;
+  $$('.confirm,.stampfx', d).forEach(x => x.remove());
+  if (d.hidden) { d.hidden = false; sc.hidden = false; void d.offsetWidth; d.classList.add('on'); sc.classList.add('on'); setTimeout(() => $('[data-act="close-drawer"]', d).focus(), 60); }
+}
+function closeDrawer() {
+  const d = $('#drawer'), sc = $('#scrim'); if (d.hidden) return;
+  d.classList.remove('on'); sc.classList.remove('on'); drawerKey = null;
+  setTimeout(() => { if (!d.classList.contains('on')) { d.hidden = true; if ($('#modal').hidden) sc.hidden = true; } }, 320);
+  if (drawerOpener && document.contains(drawerOpener)) drawerOpener.focus({ preventScroll: true });
+}
+let modalKey = null;
+function openModal({ key, eyebrow = '', title, sub = '', body, foot = '' }) {
+  const m = $('#modal'), sc = $('#scrim');
+  modalKey = key;
+  $('#modalEyebrow').textContent = eyebrow; $('#modalTitle').textContent = title; $('#modalSub').textContent = sub;
+  $('#modalBody').innerHTML = body; $('#modalFoot').innerHTML = foot;
+  if (m.hidden) { m.hidden = false; sc.hidden = false; void sc.offsetWidth; sc.classList.add('on'); setTimeout(() => { const f = $('#modalBody input, #modalBody button', m); (f || $('[data-act="close-modal"]', m)).focus(); }, 60); }
+}
+function closeModal() {
+  const m = $('#modal'), sc = $('#scrim'); if (m.hidden) return;
+  m.hidden = true; modalKey = null;
+  if ($('#drawer').hidden) { sc.classList.remove('on'); setTimeout(() => { if ($('#modal').hidden && $('#drawer').hidden) sc.hidden = true; }, 260); }
+}
+function showConfirm({ title, body, okLabel, okClass = 'btn--primary', icon, onOk }) {
+  const host = $('#drawer');
+  $$('.confirm', host).forEach(x => x.remove());
+  const el = make('div', 'confirm', `<div class="confirm__card" role="alertdialog" aria-modal="true" aria-labelledby="cfT"><h3 id="cfT">${icon ? ic(icon) : ''}${esc(title)}</h3>${body}<div class="confirm__acts"><button class="btn btn--ghost" data-c="no">Cancel</button><button class="btn btn--lg ${okClass}" data-c="ok">${icon ? ic(icon) : ''}${esc(okLabel)}</button></div></div>`);
+  host.appendChild(el);
+  setTimeout(() => $('[data-c="no"]', el).focus(), 40);
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-c]');
+    if (!b) { if (e.target === el) el.remove(); return; }
+    e.stopPropagation(); el.remove();
+    if (b.dataset.c === 'ok') onOk();
+  });
+}
+async function stamp(text) {
+  const host = $('#drawer');
+  const el = make('div', 'stampfx', `<svg class="stampfx__tool" viewBox="0 0 76 110" aria-hidden="true"><rect x="28" y="2" width="20" height="44" rx="10" fill="#8B6B47" stroke="#14213D" stroke-width="2"/><rect x="18" y="44" width="40" height="12" rx="3" fill="#5B6475" stroke="#14213D" stroke-width="2"/><rect x="8" y="56" width="60" height="22" rx="4" fill="#2F7D4F" stroke="#14213D" stroke-width="2"/></svg><div class="stampfx__ink">${ic('lock')}<span>${esc(text)}</span></div>`);
+  host.appendChild(el);
+  await sleep(1350); el.classList.add('out'); await sleep(320); el.remove();
+}
+
+/* ================= motion ================= */
+function spawnWalker(p, x, y) {
+  fxSize();
+  const el = make('div', 'walker', walkerSVG(p.look));
+  el.style.left = (x - 23) + 'px'; el.style.top = (y - 86) + 'px';
+  fx.appendChild(el); return el;
+}
+async function walkTo(el, x, y, speed = 150) {
+  const cx = parseFloat(el.style.left) + 23, cy = parseFloat(el.style.top) + 86;
+  const dx = x - cx, dy = y - cy; const dist = Math.hypot(dx, dy);
+  if (dist < 2) return;
+  el.classList.add('walking'); el.classList.toggle('flip', dx < 0);
+  const a = el.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${dx}px,${dy}px)` }], { duration: Math.max(380, dist / speed * 1000), easing: 'linear', fill: 'forwards' });
+  await a.finished;
+  el.style.left = (x - 23) + 'px'; el.style.top = (y - 86) + 'px'; a.cancel(); el.classList.remove('walking');
+}
+async function fadeEl(el, inOut) {
+  const k = inOut === 'in' ? [{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }] : [{ opacity: 1 }, { opacity: 0, transform: 'scale(.92)' }];
+  await el.animate(k, { duration: 260, fill: 'forwards' }).finished;
+}
+function nearView(el) {
+  const r = el.getBoundingClientRect();
+  if (r.top < 70 || r.bottom > innerHeight - 10) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+}
+function packetHTML(kind, label, from) { return `<span class="ev__thumb ev__thumb--${kind === 'photo' ? 'photo' : kind === 'voice' ? 'voice' : 'doc'}">${ic(kind === 'photo' ? 'image' : kind === 'voice' ? 'mic' : kind === 'text' ? 'chat' : 'file')}</span><span>${esc(label)}${from ? `<small>${ic('phone')}from ${esc(from)}</small>` : ''}</span>`; }
+async function dropPacket(pid, kind, label) {
+  const ws = $('#ws-' + pid); if (!ws) return;
+  const ant = $('#antenna'); ant.classList.remove('ping'); void ant.offsetWidth; ant.classList.add('ping');
+  if (reduce) return;
+  fxSize();
+  const r = docRect($('.fig', ws));
+  const p = person(pid); const el = make('div', 'packet', packetHTML(kind, label, p && p.id !== 'you' ? `${p.name}’s ${p.device === 'phone' ? 'phone' : 'laptop'}` : ''));
+  fx.appendChild(el);
+  el.style.left = (r.cx - el.offsetWidth / 2) + 'px'; el.style.top = (r.top - 74) + 'px';
+  const dy = r.top + r.height * .74 - (r.top - 74);
+  await el.animate([{ transform: 'translateY(-24px) scale(.6)', opacity: 0 }, { transform: 'translateY(0) scale(1)', opacity: 1, offset: .25 }, { transform: 'translateY(0) scale(1)', opacity: 1, offset: .55 }, { transform: `translateY(${dy}px) scale(.35)`, opacity: .2 }], { duration: 1500, easing: 'ease-in' }).finished;
+  el.remove();
+  ws.classList.add('is-rx'); setTimeout(() => ws.classList.remove('is-rx'), 1300);
+}
+async function flyFolder(fromEl, toEl, label) {
+  if (!fromEl || !toEl || reduce) return;
+  fxSize();
+  const a = docRect(fromEl), b = docRect(toEl);
+  const el = make('div', 'flyer', `<svg class="folder" viewBox="0 0 38 30" aria-hidden="true"><path d="M2 6a2 2 0 0 1 2-2h10l3 3h17a2 2 0 0 1 2 2v17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="#EBC873" stroke="#14213D" stroke-width="1.5"/><path d="M2 11h34" stroke="#14213D" stroke-width="1" opacity=".4"/></svg><span>${esc(label)}</span>`);
+  fx.appendChild(el);
+  el.style.left = (a.cx - 19) + 'px'; el.style.top = (a.cy - 15) + 'px';
+  const dx = b.cx - a.cx, dy = b.cy - a.cy, lift = Math.min(-60, -Math.abs(dx) * .25);
+  await el.animate([{ transform: 'translate(0,0) scale(.6)', opacity: 0 }, { transform: `translate(${dx * .15}px,${dy * .15 + lift * .6}px) scale(1)`, opacity: 1, offset: .15 }, { transform: `translate(${dx * .55}px,${dy * .55 + lift}px) scale(1)`, opacity: 1, offset: .55 }, { transform: `translate(${dx}px,${dy}px) scale(.5)`, opacity: .3 }], { duration: 1500, easing: 'ease-in-out' }).finished;
+  el.remove();
+}
+async function flyTag(fromEl, toWs, text, color) {
+  if (!fromEl || !toWs || reduce) return;
+  fxSize();
+  const a = docRect(fromEl), b = docRect($('.tags', toWs) || toWs);
+  const el = make('div', 'flytag', `<span class="tag" style="--c:${color}">${esc(text)}</span>`);
+  fx.appendChild(el);
+  el.style.left = (a.cx - 30) + 'px'; el.style.top = (a.cy - 10) + 'px';
+  const dx = b.cx - a.cx, dy = b.cy - a.cy;
+  await el.animate([{ transform: 'translate(0,0) scale(1.3)', opacity: 0 }, { transform: `translate(${dx * .5}px,${dy * .5 - 70}px) scale(1.2)`, opacity: 1, offset: .5 }, { transform: `translate(${dx}px,${dy}px) scale(1)`, opacity: 1 }], { duration: 1000, easing: 'ease-in-out' }).finished;
+  el.remove();
+}
+
+/* ================= person drawer ================= */
+function linkPill(p) {
+  if (p.id === 'you') return pill('ok', 'You', 'check');
+  if (p.link === 'offline') return pill('none', `Offline · ${p.queued} items queued`, 'wifi-off');
+  if (p.link === 'invited') return pill('pend', 'Invite sent · not linked yet', 'clock');
+  return pill('ok', `Linked · ${p.device}`, 'link');
+}
+function inputRow(x) {
+  const k = x.kind === 'photo' ? 'photo' : x.kind === 'voice' ? 'voice' : 'doc';
+  return `<li class="inp"><span class="ev__thumb ev__thumb--${k}">${ic(x.kind === 'photo' ? 'image' : x.kind === 'voice' ? 'mic' : x.kind === 'text' ? 'chat' : 'file')}</span><div>${esc(x.text)}${x.quote ? `<span class="q">${esc(x.quote)}</span>` : ''}</div><time>${esc(x.at)}</time></li>`;
+}
+function jobCard(j, opts = {}) {
+  const [a, b] = pct(j); const [tone, txt] = jobStatus(j); const pr = project(j.project); const w = person(j.who);
+  return `<div class="job">
+    <div class="job__top"><span class="job__name">${esc(j.name)}</span><span class="tag" style="--c:${pr.color}">${esc(pr.short)}</span></div>
+    ${bar(a, b)}
+    <div class="job__meta"><span class="mono">${esc(qtyLabel(j))}</span>${pill(tone, txt)}</div>
+    ${opts.who ? `<div class="job__meta"><span>${w ? esc(w.name) + ' · ' + esc(ROLES[w.role].label) : 'Nobody yet'}</span>${!w ? `<button class="btn btn--ghost" data-act="assign-job" data-job="${j.id}">Assign</button>` : ''}</div>` : ''}
+    ${opts.unassign ? `<button class="linkbtn" data-act="unassign" data-job="${j.id}">Take off this job</button>` : ''}
+  </div>`;
+}
+function roleCards(cur, name) {
+  return ROLE_ORDER.map(r => { const R = ROLES[r]; return `<label class="role"><input type="radio" name="${name}" value="${r}" ${r === cur ? 'checked' : ''}><b>${R.label}</b><span><em>Assistant can:</em> ${esc(R.can)}</span><span><em>Needs approval:</em> ${esc(R.needs)}</span><span><em>Sits in:</em> ${ROOM_LABEL[R.room]}</span></label>`; }).join('');
+}
+function openPerson(id) {
+  const p = person(id); if (!p) return;
+  if (p.id === 'you') return openAsk();
+  const R = ROLES[p.role]; const js = jobsOf(id);
+  const approver = p.role === 'pm' ? person('you') : (S.people.find(x => x.role === 'pm') || person('you'));
+  const body = `
+    <section class="sec">
+      <div class="linkrow">${linkPill(p)}<span class="where">${ic('pin')}${esc(p.where)}</span></div>
+      <div class="relay" aria-label="How work flows from ${esc(p.name)} to approval">
+        <div class="relay__node">${avatar(p)}<b>${esc(p.name)}</b><small>${esc(p.device === 'phone' ? 'Field app on phone' : 'Laptop')}</small></div>
+        <div class="relay__wire" aria-hidden="true"><i></i></div>
+        <div class="relay__node">${asstBadge()}<b>Assistant</b><small>Turns it into reports</small></div>
+        <div class="relay__wire" aria-hidden="true"><i></i></div>
+        <div class="relay__node">${approver ? avatar(approver) : ''}<b>${esc(approver ? approver.name : 'Manager')}</b><small>Approves</small></div>
+      </div>
+      <p class="explain">This desk is ${esc(first(p))}’s Assistant, not ${esc(first(p))}. ${esc(first(p))} sends photos, voice notes and files from their ${esc(p.device)}; the Assistant asks follow-up questions, drafts the report and sends it to ${esc(approver ? approver.name : 'the manager')}.</p>
+    </section>
+    <section class="sec">
+      <h3 class="h3">${asstBadge()} Assistant right now</h3>
+      <div class="now"><span class="bubble" data-kind="${p.bubble.kind}" style="margin:0">${bubbleInner(p.bubble)}</span></div>
+      <h4 class="h4">Latest from ${esc(p.name)}</h4>
+      <ul class="inputs">${(p.inputs || []).slice(0, 4).map(inputRow).join('') || `<li class="empty">Nothing yet. Their first photo or note shows up here.</li>`}</ul>
+    </section>
+    <section class="sec" id="jobsSec">
+      <div class="sec__head"><h3 class="h3">Jobs</h3><span class="eyebrow">${js.length} assigned</span></div>
+      ${js.map(j => jobCard(j, { unassign: true })).join('') || `<p class="empty">No jobs yet. Add one so ${esc(first(p))}’s Assistant knows what to track.</p>`}
+      <div id="addJobArea"><button class="btn btn--primary btn--lg btn--block" data-act="add-job-open" data-id="${p.id}">${ic('plus')}Add a job</button></div>
+    </section>
+    <section class="sec">
+      <h3 class="h3">Role</h3>
+      <p class="explain">Changing the role changes what the Assistant can do and where the desk sits.</p>
+      <fieldset class="roles" data-role-for="${p.id}"><legend class="vh">Role for ${esc(p.name)}</legend>${roleCards(p.role, 'role-' + p.id)}</fieldset>
+    </section>
+    <section class="sec">
+      <h3 class="h3">Details</h3>
+      <label class="field"><span>Name</span><input id="pName" value="${esc(p.name)}" autocomplete="off"></label>
+      <label class="field"><span>Phone or email for the field app</span><input id="pContact" value="${esc(p.contact || '')}" autocomplete="off"><small>Whatever arrives from this number or address goes to their Assistant.</small></label>
+      <div><button class="btn btn--ghost" data-act="save-details" data-id="${p.id}">Save details</button></div>
+    </section>
+    <section class="sec sec--danger"><button class="btn btn--danger" data-act="ask-remove" data-id="${p.id}">${ic('trash')}Remove from office</button></section>`;
+  const foot = p.role === 'pm' ? `<button class="btn btn--primary btn--lg" data-act="open-intray">${ic('inbox')}Open in-tray</button>` : '';
+  openDrawer({ key: 'person:' + id, lead: avatar(p, 'av--lg'), eyebrow: p.org ? `${p.org} · ${R.label}` : R.label, title: p.name, sub: ROOM_LABEL[R.room], body, foot });
+}
+function refreshDrawer() {
+  if (!drawerKey) return;
+  const [k, v] = drawerKey.split(':');
+  const scroll = $('#drawerBody').scrollTop;
+  if (k === 'person' && person(v)) openPerson(v);
+  else if (k === 'intray') openIntray();
+  else if (k === 'project') openProject(v);
+  else return;
+  $('#drawerBody').scrollTop = scroll;
+}
+
+/* ----- add job panel ----- */
+let AJ = null;
+function addJobPanel() {
+  const p = person(AJ.pid);
+  const others = Object.values(S.jobs).filter(j => j.who !== AJ.pid).sort((a, b) => (a.who ? 1 : 0) - (b.who ? 1 : 0));
+  const existing = others.length ? `<div class="picklist" role="group" aria-label="Jobs">${others.map(j => { const w = person(j.who); return `<button class="pick" aria-pressed="${AJ.pick === j.id}" data-act="aj-pick" data-job="${j.id}"><span class="pick__dot" style="--c:${project(j.project).color}"></span><span class="pick__t">${esc(j.name)}<small>${w ? `Now with ${esc(w.name)} · moves to ${esc(first(p))}` : 'Nobody on it yet'}</small></span></button>`; }).join('')}</div>` : `<p class="empty">Every job is already with ${esc(first(p))}.</p>`;
+  const nw = `<div class="grid2">
+      <label class="field"><span>Project</span><select id="ajProj">${S.projects.map(pr => `<option value="${pr.id}">${esc(pr.short)}</option>`).join('')}</select></label>
+      <label class="field"><span>Job name</span><input id="ajName" value="${esc(AJ.name || '')}" placeholder="Line B · 6-in water main"></label>
+    </div>
+    <div class="field"><span>Measured by</span><div class="seg" role="group" aria-label="Measured by">${[['qty', 'Quantity'], ['steps', 'Weighted steps'], ['done', 'Done or not']].map(([v, l]) => `<button type="button" aria-pressed="${AJ.method === v}" data-act="aj-method" data-v="${v}">${l}</button>`).join('')}</div></div>
+    ${AJ.method === 'qty' ? `<div class="grid2"><label class="field"><span>Total</span><input id="ajTotal" inputmode="numeric" class="mono" value="${esc(AJ.total || '')}" placeholder="1,200"></label><label class="field"><span>Unit</span><select id="ajUnit">${['LF', 'EA', 'SY', 'CY', 'sheets'].map(u => `<option ${AJ.unit === u ? 'selected' : ''}>${u}</option>`).join('')}</select></label></div>` : ''}
+    <p class="err" id="ajErr" hidden></p>`;
+  return `<div class="panel" role="group" aria-label="Add a job">
+    <div class="sec__head"><h4 class="h3">Add a job for ${esc(first(p))}</h4></div>
+    <div class="seg" role="group" aria-label="Job source"><button type="button" aria-pressed="${AJ.mode === 'existing'}" data-act="aj-mode" data-v="existing">Pick a job</button><button type="button" aria-pressed="${AJ.mode === 'new'}" data-act="aj-mode" data-v="new">New job</button></div>
+    ${AJ.mode === 'existing' ? existing : nw}
+    <div class="panel__acts"><button class="btn btn--quiet" data-act="aj-cancel">Cancel</button><button class="btn btn--primary" data-act="aj-save" id="ajSave">${ic('plus')}Add job</button></div>
+  </div>`;
+}
+function renderAJ() { const area = $('#addJobArea'); if (area) area.innerHTML = addJobPanel(); }
+function keepAJFields() { if (!AJ || AJ.mode !== 'new') return; const n = $('#ajName'), t = $('#ajTotal'), u = $('#ajUnit'); if (n) AJ.name = n.value; if (t) AJ.total = t.value; if (u) AJ.unit = u.value; }
+async function assignJob(pid, jid, fromEl) {
+  const j = S.jobs[jid]; const prev = j.who; const p = person(pid);
+  j.who = pid; if (j.note === 'Needs someone') delete j.note;
+  if (prev && prev !== pid) refreshTags(prev);
+  const ws = $('#ws-' + pid);
+  addLog(`<b>${esc(p.name)}</b> took on ${esc(j.name)}${prev && person(prev) ? ` from ${esc(person(prev).name)}` : ''}`);
+  renderRail();
+  if (ws) {
+    nearView(ws);
+    await flyTag(fromEl, ws, j.tag, project(j.project).color);
+    refreshTags(pid); const t = $$('.tag', ws).find(x => x.textContent === j.tag); if (t) t.classList.add('pop');
+    setBubble(pid, 'ok', `New job: ${j.tag}`, 'briefcase');
+  }
+}
+
+/* ----- role change & removal ----- */
+function lookForRole(L, role) {
+  const R = ROLES[role]; const n = { ...L };
+  if (R.field) { n.hat = n.hat && !n._officeHat ? n.hat : FIELD_HAT[role]; n.vest = role === 'contractor' ? '#D7E23A' : '#F07F1E'; if (!n.officeShirt) n.officeShirt = n.shirt; n.shirt = '#4B5563'; n.prop = 'radio'; }
+  else { delete n.hat; delete n.vest; n.shirt = n.officeShirt || n.shirt === '#4B5563' ? (n.officeShirt || '#3F5A7A') : n.shirt; n.prop = role === 'engineer' ? 'tube' : role === 'qaqc' ? 'binder' : 'mug'; }
+  return n;
+}
+async function moveDesk(p, oldWs, toRoom, { leaveOpen = false } = {}) {
+  sim.pause++;
+  const oldRoom = oldWs.closest('.room');
+  const fr = docRect($('.fig', oldWs)), rr = docRect(oldRoom), fy = fr.bottom + 6;
+  if (leaveOpen) oldWs.replaceWith(openDeskEl(oldRoom.id.replace('room-', ''))); else oldWs.remove();
+  const ws = wsEl(p); ws.style.visibility = 'hidden';
+  $('#desks-' + toRoom).appendChild(ws); roomCounts();
+  if (!reduce) {
+    const w = spawnWalker(p, fr.cx, fy);
+    await walkTo(w, rr.left + 16, fy); await fadeEl(w, 'out'); w.remove();
+    const room = $('#room-' + toRoom); nearView(room); await sleep(450);
+    const r2 = docRect(room), wr = docRect($('.fig', ws)), ty = wr.bottom + 6;
+    const fromRight = toRoom === 'trailer';
+    const w2 = spawnWalker(p, fromRight ? r2.right - 16 : r2.left + 16, ty); await fadeEl(w2, 'in');
+    await walkTo(w2, wr.cx, ty); w2.remove();
+  }
+  ws.style.visibility = ''; ws.classList.add('arrive');
+  sim.pause--;
+  return ws;
+}
+async function changeRole(pid, role) {
+  const p = person(pid); if (!p || p.role === role) return;
+  const oldRoom = ROLES[p.role].room, newRoom = ROLES[role].room;
+  const from = ROLES[p.role].label;
+  p.role = role; p.look = lookForRole(p.look, role); delete p.org;
+  if (ROLES[role].field && !/site|yard/i.test(p.where)) p.where = 'On site'; else if (!ROLES[role].field) p.where = ROOM_LABEL[newRoom];
+  const ws = $('#ws-' + pid);
+  addLog(`<b>${esc(p.name)}</b> moved from ${esc(from)} to ${esc(ROLES[role].label)}. Their Assistant’s permissions changed with the role.`);
+  refreshDrawer();
+  if (oldRoom === newRoom) { const n = refreshWs(p); if (n) n.classList.add('arrive'); }
+  else await moveDesk(p, ws, newRoom);
+  setBubble(pid, 'ok', `Now ${ROLES[role].label}`, 'check');
+  toast(`${p.name} is now ${ROLES[role].label}.`);
+}
+async function removePerson(pid) {
+  const p = person(pid); if (!p || p.id === 'you') return;
+  closeDrawer();
+  const ws = $('#ws-' + pid); const room = ws.closest('.room'); const roomKey = room.id.replace('room-', '');
+  sim.pause++;
+  jobsOf(pid).forEach(j => { j.who = null; });
+  S.people = S.people.filter(x => x !== p);
+  nearView(room); await sleep(300);
+  const fr = docRect($('.fig', ws)), rr = docRect(room);
+  ws.replaceWith(openDeskEl(roomKey)); roomCounts();
+  if (!reduce) {
+    const fy = fr.bottom + 6;
+    const w = spawnWalker(p, fr.cx, fy);
+    w.classList.add('waving'); await sleep(1500); w.classList.remove('waving');
+    const toRight = roomKey === 'trailer';
+    await walkTo(w, toRight ? rr.right - 16 : rr.left + 16, fy); await fadeEl(w, 'out'); w.remove();
+  }
+  addLog(`<b>${esc(p.name)}</b> left the office. Their approved history stays in the record.`);
+  renderRail(); sim.pause--;
+  toast(`${p.name} removed. Their approved history stays locked in the record.`, 'lock');
+}
+
+/* ================= hire ================= */
+let H = null;
+function openHire(presetRoom) {
+  const roleForRoom = { design: 'cad', qaqc: 'qaqc', pm: 'pm', trailer: 'inspector', gate: 'contractor' };
+  H = { name: 'Priya Raman', role: roleForRoom[presetRoom] || 'inspector', contact: '(555) 201-3344', jobs: new Set() };
+  renderHire();
+}
+function renderHire() {
+  const jobs = Object.values(S.jobs);
+  openModal({
+    key: 'hire', eyebrow: 'Add a person', title: 'Who’s joining?', sub: 'They get their own Assistant, matched to their role.',
+    body: `<label class="field"><span>Name</span><input id="hName" value="${esc(H.name)}" autocomplete="off"><span class="err" id="hErr" hidden>Add a name so the desk has a nameplate.</span></label>
+      <fieldset class="roles"><legend>Role</legend>${roleCards(H.role, 'hRole')}</fieldset>
+      <label class="field"><span>Their phone or email</span><input id="hContact" value="${esc(H.contact)}" autocomplete="off"><small>They get a link to the field app. Whatever they send goes to their Assistant.</small></label>
+      <fieldset class="field"><legend>Jobs to start with (optional)</legend><div class="picklist">${jobs.map(j => `<button type="button" class="pick" aria-pressed="${H.jobs.has(j.id)}" data-act="h-job" data-job="${j.id}"><span class="pick__dot" style="--c:${project(j.project).color}"></span><span class="pick__t">${esc(j.name)}<small>${j.who && person(j.who) ? `Now with ${esc(person(j.who).name)}` : 'Nobody on it yet'}</small></span></button>`).join('')}</div></fieldset>`,
+    foot: `<button class="btn btn--quiet" data-act="close-modal">Cancel</button><button class="btn btn--primary btn--lg" data-act="hire-go">${ic('user-plus')}Add to office</button>`,
+  });
+}
+function readHire() { const n = $('#hName'), c = $('#hContact'), r = $('input[name="hRole"]:checked'); if (n) H.name = n.value.trim(); if (c) H.contact = c.value.trim(); if (r) H.role = r.value; }
+function randomLook(role, seed) {
+  const pick = (arr, k) => arr[(seed * 7 + k * 13) % arr.length];
+  const L = { skin: pick(SKINS, 1), hair: pick(HAIRS, 2), hairColor: pick(HAIRC, 3), shirt: pick(SHIRTS, 4), glasses: seed % 3 === 0, prop: 'mug' };
+  L.officeShirt = L.shirt;
+  return lookForRole(L, role);
+}
+async function hire() {
+  readHire();
+  if (!H.name) { $('#hErr').hidden = false; $('#hName').focus(); return; }
+  closeModal();
+  const role = H.role, R = ROLES[role];
+  const id = 'p' + (++S.seq);
+  const p = { id, name: H.name, role, device: 'phone', where: R.field ? 'On site' : ROOM_LABEL[R.room], contact: H.contact, link: 'invited', look: randomLook(role, S.seq), bubble: { kind: 'idle', text: 'Setting up…', icon: 'clock' }, inputs: [], hired: true };
+  S.people.push(p);
+  sim.pause++;
+  const roomKey = R.room;
+  const open = $(`#room-${roomKey} .ws--open`);
+  const ws = wsEl(p); ws.style.visibility = 'hidden';
+  if (open) open.replaceWith(ws); else $('#desks-' + roomKey).appendChild(ws);
+  roomCounts();
+  if (!reduce) {
+    if (!R.field) {
+      const lobby = $('#room-lobby'); nearView(lobby); await sleep(400);
+      const door = $('#frontDoor'), elev = $('#elevator'), lr = docRect(lobby);
+      door.classList.add('open'); await sleep(250);
+      const w = spawnWalker(p, docRect(door).cx, lr.bottom - 10); await fadeEl(w, 'in');
+      await walkTo(w, docRect(elev).cx, lr.bottom - 10);
+      door.classList.remove('open');
+      elev.classList.add('open'); await sleep(500);
+      await fadeEl(w, 'out'); w.remove();
+      elev.classList.remove('open'); await sleep(350);
+      const floorNo = ['owner', 'pm'].includes(roomKey) ? '2' : '1';
+      $('#elevNum').textContent = floorNo === '2' ? '2 ▲' : '1'; await sleep(600);
+    } else if (role === 'contractor') {
+      await sleep(200);
+    } else {
+      const truck = $('#truck'); nearView(truck); await sleep(400);
+      truck.classList.add('open'); await sleep(300);
+      const tr = docRect(truck);
+      const w = spawnWalker(p, tr.left + tr.width * .62, tr.bottom - 6); await fadeEl(w, 'in');
+      truck.classList.remove('open');
+      const trl = docRect($('#room-trailer'));
+      await walkTo(w, Math.min(tr.left - 4, trl.right + 4), tr.bottom - 6);
+      await fadeEl(w, 'out'); w.remove();
+    }
+    const room = $('#room-' + roomKey); nearView(room); await sleep(450);
+    const rr = docRect(room), wr = docRect($('.fig', ws)), ty = wr.bottom + 6;
+    const fromRight = roomKey === 'trailer';
+    const w2 = spawnWalker(p, fromRight ? rr.right - 16 : rr.left + 16, ty); await fadeEl(w2, 'in');
+    await walkTo(w2, wr.cx, ty); w2.remove();
+    $('#elevNum').textContent = '1';
+  }
+  ws.style.visibility = ''; ws.classList.add('arrive');
+  setBubble(id, 'idle', `Hi ${p.name.split(' ')[0]}. Send me a photo`, 'chat');
+  addLog(`<b>${esc(p.name)}</b> joined as ${esc(R.label)}. Their Assistant is set up in the ${esc(ROOM_LABEL[roomKey])}.`);
+  toast(`Invite link ready for ${p.name} · ${p.contact || 'add a phone or email'}`, 'send');
+  renderRail();
+  for (const jid of H.jobs) { await assignJob(id, jid, ws); await sleep(250); }
+  sim.pause--;
+}
+
+/* ================= in-tray (review) ================= */
+function repCard(i) {
+  const p = person(i.who) || { name: 'Former team member', look: S.people[0].look, role: 'crew' }; const j = S.jobs[i.job];
+  return `<article class="rep" id="rep-${i.id}">
+    <header class="rep__h">${avatar(p)}<div class="rep__who"><b>${esc(p.name)}</b><span>${esc(j.name)}</span></div><span class="rep__chg mono">${esc(i.change)}</span></header>
+    ${i.where ? `<div class="rep__where mono">${esc(i.where)}</div>` : ''}
+    <p class="rep__verdict">${asstBadge()}<span>${esc(i.verdict)}</span></p>
+    <div class="chips">${i.chips.map(evChip).join('')}</div>
+    <details class="brief"><summary>Review brief</summary>
+      <div class="brief__cols"><div><h5>Claimed</h5><ul>${i.claimed.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div><h5>Evidence shows</h5><ul>${i.shows.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
+      ${i.usual ? `<p class="brief__hist">${ic('clock')}${esc(i.usual)}</p>` : ''}
+      ${i.missing.length ? `<p class="brief__hist">${ic('alert')}<span><b>Missing:</b> ${esc(i.missing.join(', '))}</span></p>` : ''}
+      <p class="quiet">Checked against the original files, not the summary.</p>
+    </details>
+    ${i.asked ? `<p class="brief__hist">${ic('chat')}<span>You asked: “${esc(i.asked)}”</span></p>` : ''}
+    <div class="rep__inline" id="inl-${i.id}"></div>
+    <div class="rep__acts"><button class="btn btn--quiet" data-act="req-changes" data-id="${i.id}">Request changes</button><button class="btn btn--ghost" data-act="ask-item" data-id="${i.id}">${ic('chat')}Ask</button><button class="btn btn--ok" data-act="approve" data-id="${i.id}">${ic('check')}Approve</button></div>
+  </article>`;
+}
+function entryHTML(h, canAmend, prid, idx) {
+  return `<div class="entry"><div class="entry__top">${ic('lock')}<span>Approved by ${esc(h.by)} · ${esc(h.at)}</span><span class="hash">${esc(h.hash)}</span></div>
+    <div class="entry__text ${h.amend ? 'struck' : ''}">${esc(h.text)}</div>
+    ${h.amend ? `<div class="amend"><div class="amend__by">Amended by ${esc(h.amend.by)} · ${esc(h.amend.at)}</div><div class="entry__text">${esc(h.amend.text)}</div><div class="amend__by">Reason: ${esc(h.amend.why)}</div></div>` : ''}
+    ${canAmend && !h.amend ? `<button class="linkbtn" data-act="amend" data-proj="${prid}" data-idx="${idx}">Amend</button>` : ''}
+    <div id="amend-${prid}-${idx}"></div></div>`;
+}
+function openIntray() {
+  const waiting = S.inbox.filter(i => i.state === 'waiting');
+  const routine = waiting.filter(i => i.group === 'routine');
+  const groups = [['attention', 'Needs attention', 'warn'], ['flagged', 'Flagged', 'bad'], ['routine', 'Routine · evidence complete', 'ok']];
+  let body = '';
+  if (routine.length > 1) body += `<button class="btn btn--ghost btn--lg btn--block" data-act="approve-batch">${ic('check')}Approve ${routine.length} routine items</button>`;
+  groups.forEach(([g, label, tone]) => { const items = waiting.filter(i => i.group === g); if (items.length) body += `<div class="grp">${pill(tone, label)}${items.map(repCard).join('')}</div>`; });
+  if (!waiting.length) body += `<p class="empty">${ic('check')} The in-tray is clear. New reports land here when people send them.</p>`;
+  const changes = S.inbox.filter(i => i.state === 'changes');
+  if (changes.length) body += `<div class="grp">${pill('warn', 'Changes requested')}${changes.map(i => `<div class="entry"><div class="entry__top">${ic('alert')}<span>${esc((person(i.who) || {}).name || '')} · ${esc(S.jobs[i.job].tag)} · ${esc(i.change)}</span></div><div class="entry__text">${esc(i.changeNote)}</div></div>`).join('')}</div>`;
+  const approved = S.inbox.filter(i => i.state === 'approved');
+  if (approved.length) body += `<div class="grp">${pill('ok', 'Approved today', 'lock')}${approved.map(i => entryHTML({ by: 'you', at: 'Oct 20, ' + i.lock.at, hash: i.lock.hash, text: `${(person(i.who) || {}).name || ''} · ${S.jobs[i.job].tag} · ${i.change}` })).join('')}</div>`;
+  openDrawer({ key: 'intray', eyebrow: pmName(), title: 'In-tray', sub: `${waiting.length} report${waiting.length === 1 ? '' : 's'} waiting. ${pmFirst()}’s Assistant checked each one against the original files.`, body });
+}
+function askApprove(ids) {
+  const items = ids.map(id => S.inbox.find(x => x.id === id)).filter(Boolean);
+  const flagged = items.some(i => i.group === 'flagged');
+  showConfirm({
+    title: 'Approve and lock?', okLabel: 'Approve and lock', okClass: 'btn--ok', icon: 'lock',
+    body: `<p>This becomes a permanent record. Mistakes can be corrected later with an amendment, never erased.</p>
+      <ul class="confirm-list">${items.map(i => `<li>${esc((person(i.who) || {}).name || '')} · ${esc(S.jobs[i.job].tag)} · <span class="mono">${esc(i.change)}</span></li>`).join('')}</ul>
+      ${flagged ? `<p class="warnline">${ic('flag')}This report is flagged. The flag stays in the record.</p>` : ''}
+      <p>You’re approving as owner. ${esc(pmFirst())} sees it in the history.</p>`,
+    onOk: () => approve(ids),
+  });
+}
+async function approve(ids) {
+  sim.pause++;
+  const items = ids.map(id => S.inbox.find(x => x.id === id)).filter(Boolean);
+  await stamp('Approved · locked');
+  for (const it of items) {
+    const j = S.jobs[it.job]; const pr = project(j.project);
+    it.state = 'approved'; it.lock = { at: simTime(), hash: hash(it.id + it.change + simTime()) };
+    j.done = Math.min(j.total, j.done + it.delta); j.pend = Math.max(0, j.pend - it.delta);
+    if (j.id === 'sewer') { delete j.flag; j.steps = 'Pipe laid · CCTV approved'; }
+    if (j.id === 'services') j.idle = `On pace · ${j.done} of ${j.total}`;
+    pr.history.unshift({ at: 'Oct 20, ' + simTime(), by: 'You', text: `${j.tag} · ${it.change}${it.where ? ' · ' + it.where : ''}`, hash: it.lock.hash });
+    setBubble(it.who, 'ok', 'Approved · locked', 'lock');
+    addLog(`You approved <b>${esc(j.tag)} · ${esc(it.change)}</b>. Locked as <span class="mono">${esc(it.lock.hash)}</span>`);
+  }
+  refreshDrawer(); renderRail();
+  const first = items[0];
+  if (first) { const sh = $('#sheet-' + S.jobs[first.job].project); await flyFolder($('#intray'), sh, items.length > 1 ? `${items.length} locked` : first.change); if (sh) sh.classList.add('pop'); }
+  toast(items.length > 1 ? `${items.length} reports approved and locked.` : 'Approved and locked. Progress updated.', 'lock');
+  sim.pause--;
+}
+function inlineAsk(i) {
+  return `<div class="panel"><h4 class="h3">${ic('chat')}Ask ${esc((person(i.who) || {}).name || '')}</h4><div class="suggest">${i.questions.map(q => `<button class="chip-btn" data-act="send-q" data-id="${i.id}" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+    <label class="field"><span>Or write your own</span><input id="q-${i.id}" placeholder="Type a question"></label>
+    <div class="panel__acts"><button class="btn btn--quiet" data-act="inline-cancel" data-id="${i.id}">Cancel</button><button class="btn btn--primary" data-act="send-q" data-id="${i.id}">${ic('send')}Send question</button></div></div>`;
+}
+function inlineChanges(i) {
+  const miss = i.missing.length ? i.missing : ['Clearer photos'];
+  return `<div class="panel"><h4 class="h3">${ic('alert')}Request changes</h4><div class="picklist">${miss.map((m, k) => `<label class="role" style="padding-left:44px"><input type="checkbox" checked data-miss="${k}"><b>${esc(m)}</b></label>`).join('')}</div>
+    <label class="field"><span>Note (optional)</span><textarea id="cn-${i.id}" placeholder="Anything else they should know"></textarea></label>
+    <div class="panel__acts"><button class="btn btn--quiet" data-act="inline-cancel" data-id="${i.id}">Cancel</button><button class="btn btn--primary" data-act="send-changes" data-id="${i.id}">${ic('send')}Send back</button></div></div>`;
+}
+
+/* ================= project drawer + amend ================= */
+function openProject(prid) {
+  const pr = project(prid); if (!pr) return;
+  const [a, b] = projPct(prid);
+  const js = jobsOfProject(prid);
+  const team = [...new Set(js.map(j => j.who).filter(Boolean))].map(person).filter(Boolean);
+  const body = `
+    <section class="sec">${bar(a, b)}<div class="linkrow">${pr.plan === 'review' ? pill('warn', 'Plan waiting for your approval', 'clock') : pill('ok', 'Plan approved · locked', 'lock')}<span class="where">${ic('briefcase')}${esc(pr.client)}</span></div>
+      ${pr.plan === 'review' ? `<button class="btn btn--primary btn--lg" data-act="plan-review" data-proj="${pr.id}">Review the plan</button>` : ''}</section>
+    <section class="sec"><div class="sec__head"><h3 class="h3">Jobs</h3><span class="eyebrow">${js.length}</span></div>${js.map(j => jobCard(j, { who: true })).join('') || `<p class="empty">Jobs appear here once the plan is approved.</p>`}</section>
+    <section class="sec"><h3 class="h3">People</h3><div class="chips">${team.map(p => `<button class="chip-btn" data-act="open-person" data-id="${p.id}">${avatar(p, 'av--sm')}${esc(p.name)}</button>`).join('') || '<p class="empty">Nobody yet.</p>'}</div></section>
+    <section class="sec"><div class="sec__head"><h3 class="h3">History</h3><span class="eyebrow">Locked entries</span></div>${pr.history.map((h, k) => entryHTML(h, true, pr.id, k)).join('') || '<p class="empty">Nothing approved yet.</p>'}</section>`;
+  openDrawer({ key: 'project:' + prid, eyebrow: 'Project', title: pr.name, sub: `${js.length} jobs · ${team.length} people`, body });
+}
+function amendForm(prid, idx) {
+  const h = project(prid).history[idx];
+  return `<div class="panel" style="margin-top:10px"><h4 class="h3">${ic('pen')}Amend this entry</h4>
+    <label class="field"><span>Corrected entry</span><input id="amT" value="${esc(h.text)}"></label>
+    <label class="field"><span>Reason (required)</span><textarea id="amW" placeholder="What was wrong, and how you know"></textarea><span class="err" id="amErr" hidden>Add a reason. Amendments always say why.</span></label>
+    <div class="panel__acts"><button class="btn btn--quiet" data-act="amend-cancel" data-proj="${prid}" data-idx="${idx}">Cancel</button><button class="btn btn--primary" data-act="amend-preview" data-proj="${prid}" data-idx="${idx}">Preview</button></div></div>`;
+}
+
+/* ================= ask (owner's Assistant) ================= */
+const SUGGEST = ['What’s holding up Line A?', 'Which reports need a decision?', 'How far along is Oak Hollow?', 'Who hasn’t sent anything today?'];
+function answer(q) {
+  const s = q.toLowerCase(); const lA = S.jobs.lineA;
+  if (s.includes('line a') || s.includes('holding')) {
+    return lA.pend > 0
+      ? { text: `Line A is waiting on the pressure test. ${fmt(lA.pend)} LF, Sta 12+00 to 15+20, is laid and in the in-tray. J. Ortiz says the test crew is booked for 7 AM tomorrow. Paving restoration can’t start until it passes.`, chips: ['Voice note · 0:38', 'Photo 3 · 12+40', 'Test schedule p.1'], act: ['open-intray', 'Open in-tray'] }
+      : { text: `The 320 LF is approved and locked. Line A still needs the pressure test, booked for 7 AM tomorrow. Paving restoration starts after it passes.`, chips: ['Voice note · 0:38', 'Test schedule p.1'] };
+  }
+  if (s.includes('decision') || s.includes('approv') || s.includes('tray')) {
+    const w = S.inbox.filter(i => i.state === 'waiting');
+    if (!w.length) return { text: 'Nothing is waiting. The in-tray is clear.', chips: [] };
+    const r = w.filter(i => i.group === 'routine').length, f = w.filter(i => i.group === 'flagged').length;
+    return { text: `${w.length} in the in-tray: ${r} routine with complete evidence, ${f} flagged, and ${w.length - r - f} that need a closer look.`, chips: w.slice(0, 2).map(i => i.chips[0]), act: ['open-intray', 'Open in-tray'] };
+  }
+  if (s.includes('far') || s.includes('progress') || s.includes('oak')) {
+    const [a, b] = projPct('oak');
+    return { text: `Oak Hollow is ${a}% approved, ${b}% once the in-tray is approved. Line A is ${pct(lA)[0]}% done and the 90% submittal is ${pct(S.jobs.submittal)[0]}%.`, chips: ['Plan · Oak Hollow', 'Sheet W-41'], act: ['open-project', 'Open project', 'oak'] };
+  }
+  if (s.includes('who') || s.includes('anything') || s.includes('quiet')) {
+    const quiet = S.people.filter(p => p.id !== 'you' && (!p.inputs.length || p.link === 'offline'));
+    return quiet.length ? { text: `${quiet.map(p => p.link === 'offline' ? `${p.name} (offline, ${p.queued} items queued)` : p.name).join(', ')}. Everyone else has sent something today.`, chips: [] } : { text: 'Everyone has sent something today.', chips: [] };
+  }
+  return { text: 'In this prototype I only answer from the sample files. Try one of the suggested questions.', chips: [] };
+}
+function msgHTML(m) {
+  if (m.me) return `<div class="msg msg--me">${esc(m.text)}</div>`;
+  return `<div class="msg msg--bot"><span class="who">${asstBadge()}Assistant</span><span>${esc(m.text)}</span>${m.chips && m.chips.length ? `<div class="chips">${m.chips.map(evChip).join('')}</div>` : ''}${m.act ? `<div><button class="btn btn--ghost" data-act="${m.act[0]}" ${m.act[2] ? `data-proj="${m.act[2]}"` : ''}>${esc(m.act[1])}${ic('arrow')}</button></div>` : ''}</div>`;
+}
+function openAsk() {
+  const me = person('you');
+  openDrawer({
+    key: 'ask', lead: avatar(me, 'av--lg'), eyebrow: 'Your Assistant', title: 'Ask about any job', sub: 'Answers come from the job files, with sources.',
+    body: `<div class="chat" id="chat">${S.chat.length ? S.chat.map(msgHTML).join('') : `<p class="empty">Ask about a job, a person or a report. Try one of these:</p>`}</div><div class="suggest">${SUGGEST.map(q => `<button class="chip-btn" data-act="ask-q" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>`,
+    foot: `<form class="composer" id="askForm"><input id="askInput" placeholder="Ask about a job, a person or a report" aria-label="Question" autocomplete="off"><button class="btn btn--primary" type="submit">${ic('send')}Ask</button></form>`,
+  });
+}
+function ask(q) {
+  if (!q.trim()) return;
+  S.chat.push({ me: true, text: q }); S.chat.push(answer(q));
+  if (drawerKey === 'ask') { $('#chat').innerHTML = S.chat.map(msgHTML).join(''); const b = $('#drawerBody'); b.scrollTop = b.scrollHeight; }
+}
+
+/* ================= evidence viewer ================= */
+function openEvidence(label) {
+  const k = evKind(label);
+  const sta = (label.match(/\d+\+\d+/) || ['13+50'])[0];
+  let art = '';
+  if (k === 'photo') {
+    art = `<svg viewBox="0 0 640 380" role="img" aria-label="Photo: trench with pipe at ${esc(sta)}"><rect width="640" height="380" fill="#9EC3DD"/><path d="M0 170q160-40 320-10t320-20v240H0z" fill="#A3BF8C"/><path d="M0 220h640v160H0z" fill="#B99A70"/><path d="M60 250h520l40 130H20z" fill="#7A5F42"/><rect x="40" y="300" width="560" height="26" rx="13" fill="#3A73B5" stroke="#14213D" stroke-width="2"/><rect x="440" y="150" width="6" height="110" fill="#C9A15B"/><rect x="408" y="130" width="72" height="30" fill="#FFFFFF" stroke="#14213D" stroke-width="2"/><text x="444" y="151" text-anchor="middle" style="font:600 16px var(--mono)" fill="#14213D">${esc(sta)}</text><circle cx="444" cy="300" r="62" fill="none" stroke="#F2C230" stroke-width="5"/><g transform="translate(560 40)"><circle r="16" fill="#B42318"/><circle r="6" fill="#FFFFFF"/></g></svg>`;
+  } else if (k === 'voice') {
+    let bars = ''; for (let i = 0; i < 60; i++) { const h = 10 + Math.abs(Math.sin(i * 1.7) * 50) + (i % 7) * 3; bars += `<rect x="${30 + i * 9.6}" y="${120 - h / 2}" width="5" height="${h}" rx="2.5" fill="${i < 34 ? '#2F7D4F' : '#9AA3B2'}"/>`; }
+    art = `<svg viewBox="0 0 640 240" role="img" aria-label="Voice note waveform"><rect width="640" height="240" fill="#FFFFFF"/>${bars}<text x="30" y="216" style="font:500 15px var(--mono)" fill="#5B6475">0:22 / 0:38</text></svg>`;
+  } else {
+    let lines = ''; for (let i = 0; i < 16; i++) lines += `<rect x="70" y="${70 + i * 17}" width="${300 + (i * 37) % 160}" height="6" rx="3" fill="#D5DAE2"/>`;
+    art = `<svg viewBox="0 0 640 380" role="img" aria-label="Document page"><rect width="640" height="380" fill="#EEF0F4"/><rect x="50" y="20" width="540" height="360" fill="#FFFFFF" stroke="#C9C2B4"/><rect x="70" y="40" width="200" height="12" rx="3" fill="#14213D"/>${lines}<rect x="62" y="162" width="470" height="44" rx="4" fill="#F2C230" opacity=".35" stroke="#B45309" stroke-width="2"/></svg>`;
+  }
+  const meta = k === 'photo' ? `<span>${ic('clock')}Oct 20 · 1:42 PM</span><span>${ic('pin')}GPS 35.0841, −92.4419 · on line</span><span>${ic('phone')}J. Ortiz’s phone</span>` : k === 'voice' ? `<span>${ic('clock')}Oct 20 · 1:44 PM</span><span>${ic('phone')}J. Ortiz’s phone</span>` : `<span>${ic('file')}Original file</span><span>${ic('clock')}Uploaded Oct 20</span>`;
+  openModal({
+    key: 'ev', eyebrow: 'Evidence · original file', title: label, sub: k === 'voice' ? '“Laid 320 feet today, 12+00 to 15+20. Test crew tomorrow.”' : 'The highlighted spot is what the Assistant used.',
+    body: `<div class="evview">${art}</div><div class="evmeta">${meta}</div><p class="quiet">Sample image drawn for this prototype.</p>`,
+    foot: `<button class="btn btn--primary" data-act="close-modal">Done</button>`,
+  });
+}
+
+/* ================= new project ================= */
+let NP = null;
+const SAMPLE_DOCS = [
+  { name: 'Elm St plans.pdf', pages: 86, kind: 'pdf' },
+  { name: 'Elm St specifications.pdf', pages: 212, kind: 'pdf' },
+  { name: 'Geotech report.docx', pages: 38, kind: 'doc' },
+  { name: 'Bid form.xlsx', pages: 3, kind: 'xls' },
+  { name: 'Elm St plans (1).pdf', pages: 86, kind: 'pdf', dup: 'Same as Elm St plans.pdf · skipped' },
+];
+const ITEM_LIB = {
+  Water: [{ name: '8-in water main', tag: 'Water main', qty: 900, unit: 'LF', method: 'qty', src: 'Sheet W-2', roles: ['crew'] }, { name: 'Fire hydrant assemblies', tag: 'Hydrants', qty: 3, unit: 'EA', method: 'qty', src: 'Sheet W-4', roles: ['crew'] }],
+  Sewer: [{ name: '8-in sanitary sewer', tag: 'Sewer', qty: 640, unit: 'LF', method: 'qty', src: 'Sheet S-1', roles: ['crew'] }, { name: 'CCTV inspection', tag: 'CCTV', qty: 640, unit: 'LF', method: 'qty', src: 'Spec p.112', roles: ['inspector'] }],
+  Drainage: [{ name: '18-in RCP storm drain', tag: '18-in RCP', qty: 1240, unit: 'LF', method: 'qty', src: 'Sheet D-3', roles: ['crew'] }, { name: 'Curb inlets', tag: 'Inlets', qty: 9, unit: 'EA', method: 'qty', src: 'Sheet D-5', roles: ['crew'] }, { name: 'SW3P inspections', tag: 'SW3P', qty: 12, unit: 'weeks', method: 'qty', src: 'Spec p.47', roles: ['inspector'] }],
+  Paving: [{ name: 'Paving restoration', tag: 'Paving', qty: 2150, unit: 'SY', method: 'qty', src: 'Sheet P-2', roles: ['contractor', 'crew'] }],
+  _always: [{ name: 'Issued-for-construction sheets', tag: 'IFC sheets', qty: 24, unit: 'sheets', method: 'qty', src: 'Sheet index G-1', roles: ['cad', 'engineer'] }, { name: 'Permit approved', tag: 'Permit', qty: 1, unit: '', method: 'done', src: 'Permit file p.1', roles: ['pm'] }],
+};
+function openNewProject() {
+  NP = { step: 1, name: 'Elm Street Drainage Improvements', client: 'City of Oak Hollow', types: new Set(['Drainage', 'Paving']), team: new Set(['brooks', 'ortiz', 'patel', 'chen', 'ward'].filter(person)), docs: SAMPLE_DOCS.map(d => ({ ...d })) };
+  renderNP();
+}
+function npSteps() { return `<ol class="steps" aria-label="Steps">${['Name', 'Team', 'Documents', 'Plan'].map((s, i) => `<li class="${i + 1 === NP.step ? 'on' : i + 1 < NP.step ? 'done' : ''}" ${i + 1 === NP.step ? 'aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`; }
+function renderNP() {
+  let body = npSteps(), foot = '';
+  if (NP.step === 1) {
+    body += `<label class="field"><span>Project name</span><input id="npName" value="${esc(NP.name)}" autocomplete="off"><span class="err" id="npErr" hidden>Give the project a name.</span></label>
+      <label class="field"><span>Client or agency</span><input id="npClient" value="${esc(NP.client)}" autocomplete="off"></label>
+      <fieldset class="field"><legend>Kind of work</legend><div class="toggles">${['Water', 'Sewer', 'Drainage', 'Paving'].map(t => `<button type="button" class="tog" aria-pressed="${NP.types.has(t)}" data-act="np-type" data-t="${t}">${ic(NP.types.has(t) ? 'check' : 'plus')}${t}</button>`).join('')}</div></fieldset>`;
+    foot = `<button class="btn btn--quiet" data-act="close-modal">Cancel</button><button class="btn btn--primary btn--lg" data-act="np-next">Next: pick the team${ic('arrow')}</button>`;
+  } else if (NP.step === 2) {
+    body += `<p class="explain">Everyone you pick gets the scope documents for this project, and nothing else.</p><div class="teamgrid">${S.people.filter(p => p.id !== 'you').map(p => `<button type="button" class="pick" aria-pressed="${NP.team.has(p.id)}" data-act="np-team" data-id="${p.id}">${avatar(p)}<span class="pick__t">${esc(p.name)}<small>${esc(p.org || ROLES[p.role].label)}</small></span>${NP.team.has(p.id) ? ic('check') : ''}</button>`).join('')}</div>`;
+    foot = `<button class="btn btn--quiet" data-act="np-back">Back</button><button class="btn btn--primary btn--lg" data-act="np-next">Next: add documents${ic('arrow')}</button>`;
+  } else {
+    const ok = NP.docs.filter(d => !d.dup); const pages = ok.reduce((s, d) => s + (d.pages || 0), 0);
+    body += `<label class="drop" id="drop" for="npFiles">${ic('upload')}<b>Drop plans, specs and bid forms</b><span>Whole folders and ZIP files work too.</span><input type="file" id="npFiles" class="vh" multiple></label>
+      <ul class="files">${NP.docs.map(d => `<li class="file ${d.dup ? 'file--dup' : ''}"><span class="ev__thumb">${ic('file')}</span><div>${esc(d.name)}<small>${d.dup ? esc(d.dup) : d.pages ? `${d.pages} pages` : 'Ready'}</small></div>${d.dup ? pill('none', 'Skipped', 'x') : pill('ok', 'Ready', 'check')}</li>`).join('')}</ul>
+      <p class="explain"><span class="mono">${fmt(pages)}</span> pages to read. You can leave while the Assistant reads them.</p>
+      <div class="connect"><button type="button" class="chip-btn" data-act="np-connect">${ic('folder')}Connect a SharePoint or OneDrive folder</button></div>
+      <div class="addr">${ic('send')}Forward emails to <code>elm-street@jobs.fieldbook.example</code></div>`;
+    foot = `<button class="btn btn--quiet" data-act="np-back">Back</button><button class="btn btn--primary btn--lg" data-act="np-create">${ic('check')}Create project</button>`;
+  }
+  openModal({ key: 'np', eyebrow: 'New project', title: ['Name the project', 'Pick the team', 'Add scope documents'][NP.step - 1], sub: `Step ${NP.step} of 4`, body, foot });
+  if (NP.step === 3) wireDrop();
+}
+function wireDrop() {
+  const drop = $('#drop'), inp = $('#npFiles');
+  const add = (files) => {
+    [...files].forEach(f => {
+      const dupOf = NP.docs.find(d => !d.dup && d.name === f.name);
+      NP.docs.push({ name: f.name, pages: /\.pdf$/i.test(f.name) ? Math.max(1, Math.round(f.size / 60000)) : 0, kind: 'user', dup: dupOf ? `Same as ${dupOf.name} · skipped` : (/\.zip$/i.test(f.name) ? null : null) });
+    });
+    renderNP();
+  };
+  inp.addEventListener('change', () => add(inp.files));
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => add(e.dataTransfer.files));
+}
+function readNP1() { const n = $('#npName'), c = $('#npClient'); if (n) NP.name = n.value.trim(); if (c) NP.client = c.value.trim(); }
+function planItems(types, team) {
+  const out = [];
+  types.forEach(t => (ITEM_LIB[t] || []).forEach(x => out.push({ ...x })));
+  ITEM_LIB._always.forEach(x => out.push({ ...x, name: x.tag === 'Permit' && types.includes('Drainage') ? 'Drainage permit approved' : x.name }));
+  const people = team.map(person).filter(Boolean);
+  out.forEach(it => {
+    const m = it.roles.map(r => people.find(p => p.role === r)).find(Boolean);
+    const fieldWork = it.roles.some(r => ROLES[r].field);
+    const fallback = people.find(p => !!ROLES[p.role].field === fieldWork) || people[0];
+    it.who = (m || fallback || {}).id || null;
+  });
+  return out;
+}
+async function createProject() {
+  const pages = NP.docs.filter(d => !d.dup).reduce((s, d) => s + (d.pages || 0), 0);
+  const dups = NP.docs.filter(d => d.dup).length;
+  const id = 'pr' + (++S.seq);
+  const short = NP.name.split(/\s+/).slice(0, 2).join(' ');
+  const pr = { id, name: NP.name, short, client: NP.client || 'Client not set', color: PROJ_COLORS[S.projects.length % PROJ_COLORS.length], plan: 'reading', history: [], team: [...NP.team] };
+  pr.items = planItems([...NP.types], pr.team);
+  closeModal();
+  sim.pause++;
+  const room = $('#room-plan'); nearView(room); room.classList.add('is-busy');
+  await sleep(450);
+  const cab = $('#cabinet'), cc = $('#cabCount'), tbl = $('#ptable');
+  cab.classList.add('open');
+  const src = $('#newProjectBtn');
+  for (const d of NP.docs.filter(x => !x.dup).slice(0, 5)) { flyFolder(src, cab, d.name.replace(/\.[a-z]+$/i, '')); await sleep(220); }
+  await sleep(1300); cab.classList.remove('open');
+  cc.hidden = false; tbl.classList.add('unroll');
+  const t0 = performance.now(), dur = reduce ? 1 : 2400;
+  await new Promise(res => { const step = (t) => { const k = Math.min(1, (t - t0) / dur); cc.textContent = `Reading ${fmt(Math.round(pages * k))} of ${fmt(pages)} pages`; if (k < 1) requestAnimationFrame(step); else res(); }; requestAnimationFrame(step); });
+  cc.textContent = `Read ${fmt(pages)} pages${dups ? ` · ${dups} duplicate skipped` : ''}`;
+  addLog(`Your Assistant read <b>${fmt(pages)} pages</b> for ${esc(pr.short)}${dups ? ` and skipped ${dups} duplicate file` : ''}.`);
+  // sticky notes: the plan the Assistant proposes
+  const board = $('#board'); const br = board.getBoundingClientRect();
+  const notes = [];
+  for (let k = 0; k < pr.items.length; k++) {
+    const it = pr.items[k]; const n = make('div', 'sticky', `<b>${it.method === 'done' ? 'Done / not' : fmt(it.qty) + ' ' + esc(it.unit)}</b>${esc(it.tag)}`);
+    const cols = Math.max(2, Math.floor((br.width - 20) / 70));
+    n.style.left = (10 + (k % cols) * ((br.width - 116) / Math.max(1, cols - 1))) + 'px';
+    n.style.top = (6 + Math.floor(k / cols) * 34) + 'px';
+    n.style.setProperty('--r', ((k % 3) - 1) * 3 + 'deg');
+    board.appendChild(n); notes.push(n); await sleep(240);
+  }
+  await sleep(900);
+  S.projects.push(pr); pr.plan = 'review'; renderBoard();
+  const sheet = $('#sheet-' + id);
+  if (sheet && !reduce) {
+    const sr = sheet.getBoundingClientRect();
+    await Promise.all(notes.map(n => { const r = n.getBoundingClientRect(); return n.animate([{ transform: 'none' }, { transform: `translate(${sr.left - r.left}px,${sr.top - r.top}px) scale(.3)`, opacity: 0 }], { duration: 600, easing: 'ease-in', fill: 'forwards' }).finished; }));
+    sheet.classList.add('pop');
+  }
+  notes.forEach(n => n.remove());
+  cc.hidden = true; room.classList.remove('is-busy');
+  pr.team.forEach(pid => setBubble(pid, 'work', `Reading ${pr.short} scope`));
+  addLog(`<b>${esc(pr.name)}</b> set up. The Assistant proposed ${pr.items.length} plan items for your review.`, pr.items[0] ? pr.items[0].src : null);
+  renderRail();
+  sim.pause--;
+  openPlanReview(id);
+}
+function openPlanReview(prid) {
+  const pr = project(prid); if (!pr || !pr.items) return;
+  const team = (pr.team || []).map(person).filter(Boolean);
+  const body = `<p class="explain">The Assistant read the scope documents and proposes these items. Change anything before you approve. Nothing counts toward progress until a report is approved.</p>
+    ${pr.items.map((it, k) => `<div class="planitem"><div class="planitem__name"><span>${esc(it.name)}</span>${evChip(it.src)}</div>
+      <div class="planitem__row">
+        ${it.method === 'done' ? `<div class="field"><span>Measured by</span><span class="pill pill--none" style="align-self:flex-start">${ic('check')}Done or not</span></div>` : `<label class="field"><span>Quantity (${esc(it.unit)})</span><input id="pi-q-${k}" class="mono" inputmode="numeric" value="${it.qty}"></label>`}
+        <label class="field"><span>Who reports it</span><select id="pi-w-${k}">${team.map(p => `<option value="${p.id}" ${p.id === it.who ? 'selected' : ''}>${esc(p.name)} · ${esc(ROLES[p.role].label)}</option>`).join('')}</select></label>
+      </div></div>`).join('')}
+    <p class="quiet">Quantities come from the scope documents. Each item keeps its source.</p>`;
+  openDrawer({ key: 'plan:' + prid, eyebrow: `New project · step 4 of 4`, title: 'Review the plan', sub: pr.name, body, foot: `<button class="btn btn--quiet" data-act="close-drawer">Not now</button><button class="btn btn--ok btn--lg" data-act="plan-approve" data-proj="${prid}">${ic('lock')}Approve plan</button>` });
+}
+function readPlan(pr) { pr.items.forEach((it, k) => { const q = $('#pi-q-' + k), w = $('#pi-w-' + k); if (q) { const v = parseInt(q.value.replace(/[^\d]/g, ''), 10); if (v > 0) it.qty = v; } if (w) it.who = w.value; }); }
+async function approvePlan(prid) {
+  const pr = project(prid);
+  sim.pause++;
+  await stamp('Plan approved');
+  closeDrawer();
+  pr.plan = 'approved';
+  const h = hash(pr.id + 'plan' + simTime());
+  pr.history.unshift({ at: 'Oct 20, ' + simTime(), by: 'You', text: `Plan approved · ${pr.items.length} jobs`, hash: h });
+  pr.items.forEach(it => { const jid = 'j' + (++S.seq); S.jobs[jid] = { id: jid, project: pr.id, tag: it.tag, name: it.name, who: it.who, method: it.method, unit: it.unit, word: it.unit === 'EA' ? '' : it.unit, total: it.method === 'done' ? 1 : it.qty, done: 0, pend: 0, idle: 'Not started' }; });
+  addLog(`You approved the <b>${esc(pr.short)}</b> plan. Locked as <span class="mono">${esc(h)}</span>`);
+  renderRail();
+  const sheet = $('#sheet-' + prid); if (sheet) sheet.classList.add('pop');
+  const byWho = {};
+  Object.values(S.jobs).filter(j => j.project === prid && j.who).forEach(j => { (byWho[j.who] = byWho[j.who] || []).push(j); });
+  for (const [pid, js] of Object.entries(byWho)) {
+    const ws = $('#ws-' + pid); if (!ws) continue;
+    nearView(ws);
+    await flyTag(sheet, ws, js[0].tag, pr.color);
+    refreshTags(pid); setBubble(pid, 'ok', `New job: ${js[0].tag}${js.length > 1 ? ` +${js.length - 1}` : ''}`, 'briefcase');
+    await sleep(120);
+  }
+  $('#ptable').classList.remove('unroll');
+  toast(`${pr.short} plan approved and locked. Progress tracking starts now.`, 'lock');
+  sim.pause--;
+}
+
+/* ================= live office simulation ================= */
+function addInput(pid, x) { const p = person(pid); if (!p) return; p.inputs.unshift({ ...x, at: simTime() }); if (p.link === 'invited') p.link = 'online'; }
+async function evInput(pid, kind, bubbleText, logText, chip) {
+  const p = person(pid); if (!p || p.link === 'offline') return false;
+  addInput(pid, { kind, text: bubbleText, chip });
+  await dropPacket(pid, kind, bubbleText);
+  setBubble(pid, 'input', bubbleText, kind === 'photo' ? 'image' : kind === 'voice' ? 'mic' : kind === 'text' ? 'chat' : 'file');
+  addLog(`<b>${esc(p.name)}</b> ${logText}`, chip);
+  setTimeout(() => { if (person(pid) && p.bubble.text === bubbleText) setBubble(pid, 'work', 'Adding to today’s draft'); }, 2600);
+  if (drawerKey === 'person:' + pid) refreshDrawer();
+  return true;
+}
+function evWork(pid, bubbleText, logText, chip, kind = 'work') {
+  const p = person(pid); if (!p) return false;
+  setBubble(pid, kind, bubbleText);
+  addLog(`${esc(first(p) === 'you' ? 'Your' : p.name + '’s')} Assistant ${logText}`, chip);
+  return true;
+}
+async function evAlvarezReport() {
+  if (sim.did.alv || !person('alvarez')) return false;
+  sim.did.alv = true;
+  await evInput('alvarez', 'photo', '2 photos · 214 and 218 Elm Ct', 'sent 2 photos of meter boxes at 214 and 218 Elm Ct', 'Photo 2 · 214 Elm Ct');
+  await sleep(2800);
+  if (!person('alvarez')) return true;
+  setBubble('alvarez', 'work', 'Drafting report'); await sleep(1800);
+  const it = { id: 'r' + (++S.seq), who: 'alvarez', job: 'services', delta: 2, change: '+2 reconnected', where: 'Elm Ct, 214 to 218', group: 'routine', state: 'waiting', verdict: 'Evidence complete. Matches the plan.', claimed: ['2 services reconnected', 'Meter boxes set, lids on'], shows: ['Photos show both boxes with lids and house numbers', 'GPS on Elm Ct, matches service list rows 49 and 50'], missing: [], usual: '6 today vs. the usual 5', questions: ['Any curb stops left open?'], chips: ['Photo 2 · 214 Elm Ct', 'Photo 3 · 218 Elm Ct'] };
+  const ws = $('#ws-alvarez');
+  await flyFolder(ws, $('#intray'), '+2 services');
+  S.inbox.push(it); S.jobs.services.pend += 2;
+  setBubble('alvarez', 'pend', `Submitted · waiting for ${pmFirst()}`);
+  const t = $('#intray'); t.classList.remove('bump'); void t.offsetWidth; t.classList.add('bump');
+  addLog(`<b>M. Alvarez</b>’s Assistant sent a report to the in-tray: <span class="mono">+2 services</span>`);
+  renderRail(); if (drawerKey === 'intray') refreshDrawer();
+  return true;
+}
+async function evPatelOnline() {
+  const p = person('patel'); if (!p) return false;
+  if (p.link !== 'offline') return evInput('patel', 'photo', 'Rain gauge · 0.6 in', 'sent a photo of the rain gauge at Outfall 2: 0.6 in', 'Photo 1 · Outfall 2');
+  p.link = 'online'; p.where = 'Outfall 2';
+  const ws = $('#ws-patel'); if (ws) ws.classList.remove('is-offline');
+  dropPacket('patel', 'photo', '5 photos'); await sleep(350); dropPacket('patel', 'doc', 'Inspection form'); await sleep(350); await dropPacket('patel', 'text', '6 notes');
+  addInput('patel', { kind: 'photo', text: '12 queued items uploaded', chip: 'Photo 1 · Outfall 2' });
+  setBubble('patel', 'ok', '12 items uploaded', 'check');
+  addLog(`<b>S. Patel</b> is back online. 12 queued items uploaded on their own.`, 'SW3P form p.1');
+  renderRail(); if (drawerKey === 'person:patel') refreshDrawer();
+  return true;
+}
+async function evNewHire() {
+  const p = S.people.find(x => x.hired && !x.inputs.length); if (!p) return false;
+  return evInput(p.id, 'text', '“First day, all set”', 'sent their first message: “First day, all set.”', null);
+}
+const SCRIPT = [
+  () => evInput('ortiz', 'photo', '2 photos · Sta 15+20 to 15+40', 'sent 2 photos from Sta 15+20 to 15+40', 'Photo 13 · 15+30'),
+  () => evWork('chen', 'Drafting sheet W-43', 'logged sheet W-43 as started', 'Sheet W-43'),
+  () => evInput('lee', 'voice', 'Voice note · 0:22', 'sent a voice note: “Re-ran CCTV MH-6 to MH-7. New photos coming.”', 'Voice note · 0:22'),
+  () => evAlvarezReport(),
+  () => evWork('brooks', 'Checked reports against files', 'checked the latest reports against the original files', null, 'ok'),
+  () => evPatelOnline(),
+  () => evNewHire(),
+  () => evInput('ward', 'text', '“Roller on standby”', 'texted: “Roller is on standby until Line A clears.”', null),
+  () => evWork('singh', '12 comments on W-30 to W-36', 'logged 12 review comments on W-30 to W-36', 'Review log p.3'),
+  () => evInput('ortiz', 'text', '“Test crew booked 7 AM”', 'texted: “Test crew booked for 7 AM tomorrow.”', null),
+  () => evWork('novak', 'Spec 33 11 13 marked up', 'filed the markup of spec section 33 11 13', 'Spec p.47'),
+];
+let busy = false;
+async function tick() {
+  if (!sim.live || sim.pause || busy || document.hidden) return;
+  busy = true;
+  sim.min += 1 + (sim.i % 3 === 0 ? 1 : 0); updateClocks();
+  for (let tries = 0; tries < SCRIPT.length; tries++) { const ok = await SCRIPT[sim.i++ % SCRIPT.length](); if (ok !== false) break; }
+  busy = false;
+}
+
+/* ================= events ================= */
+const ACTS = {
+  'close-drawer': () => closeDrawer(),
+  'close-modal': () => closeModal(),
+  'open-person': (t) => { closeModal(); openPerson(t.dataset.id); },
+  'open-intray': () => { closeModal(); openIntray(); },
+  'open-project': (t) => openProject(t.dataset.proj),
+  'toggle-live': (t) => { sim.live = !sim.live; t.setAttribute('aria-pressed', sim.live); $('span', t).textContent = sim.live ? 'Live' : 'Paused'; toast(sim.live ? 'Office is live again.' : 'Paused. Nothing moves until you resume.', sim.live ? 'play' : 'pause'); },
+  'hire': (t) => openHire(t.dataset.room),
+  'h-job': (t) => { readHire(); const id = t.dataset.job; H.jobs.has(id) ? H.jobs.delete(id) : H.jobs.add(id); t.setAttribute('aria-pressed', H.jobs.has(id)); },
+  'hire-go': () => hire(),
+  'new-project': () => openNewProject(),
+  'np-type': (t) => { readNP1(); const x = t.dataset.t; NP.types.has(x) ? NP.types.delete(x) : NP.types.add(x); renderNP(); },
+  'np-team': (t) => { const id = t.dataset.id; NP.team.has(id) ? NP.team.delete(id) : NP.team.add(id); renderNP(); },
+  'np-next': () => { if (NP.step === 1) { readNP1(); if (!NP.name) { $('#npErr').hidden = false; $('#npName').focus(); return; } if (!NP.types.size) NP.types.add('Drainage'); } NP.step++; renderNP(); },
+  'np-back': () => { NP.step--; renderNP(); },
+  'np-connect': () => toast('Folder connections aren’t wired up in this prototype.', 'folder'),
+  'np-create': () => createProject(),
+  'plan-review': (t) => openPlanReview(t.dataset.proj),
+  'plan-approve': (t) => { const pr = project(t.dataset.proj); readPlan(pr); showConfirm({ title: 'Approve and lock this plan?', okLabel: 'Approve plan', okClass: 'btn--ok', icon: 'lock', body: `<p>${pr.items.length} items become the baseline that progress is measured against. Changes later go in as amendments, never erased.</p>`, onOk: () => approvePlan(pr.id) }); },
+  'assign-job': (t) => openAssign(t.dataset.job),
+  'assign-to': (t) => { const jid = t.dataset.job, pid = t.dataset.id; closeDrawer(); assignJob(pid, jid, $('#needs')); },
+  'add-job-open': (t) => { AJ = { pid: t.dataset.id, mode: 'existing', pick: null, method: 'qty', unit: 'LF' }; renderAJ(); $('#addJobArea').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' }); },
+  'aj-mode': (t) => { keepAJFields(); AJ.mode = t.dataset.v; renderAJ(); },
+  'aj-pick': (t) => { AJ.pick = t.dataset.job; $$('[data-act="aj-pick"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.job === AJ.pick)); },
+  'aj-method': (t) => { keepAJFields(); AJ.method = t.dataset.v; renderAJ(); },
+  'aj-cancel': () => { AJ = null; $('#addJobArea').innerHTML = `<button class="btn btn--primary btn--lg btn--block" data-act="add-job-open" data-id="${drawerKey.split(':')[1]}">${ic('plus')}Add a job</button>`; },
+  'aj-save': async (t) => {
+    const err = $('#ajErr'); let jid;
+    if (AJ.mode === 'existing') { if (!AJ.pick) { toast('Pick a job first.', 'alert'); return; } jid = AJ.pick; }
+    else {
+      keepAJFields(); const name = (AJ.name || '').trim(); const total = parseInt(String(AJ.total || '').replace(/[^\d]/g, ''), 10);
+      if (!name) { err.hidden = false; err.textContent = 'Name the job.'; return; }
+      if (AJ.method === 'qty' && !(total > 0)) { err.hidden = false; err.textContent = 'Add a total so progress can be measured.'; return; }
+      jid = 'j' + (++S.seq);
+      const tag = name.split(/[·,]/)[0].trim().split(/\s+/).slice(0, 2).join(' ').slice(0, 14);
+      S.jobs[jid] = { id: jid, project: $('#ajProj').value, tag, name, who: null, method: AJ.method, unit: AJ.method === 'qty' ? AJ.unit : AJ.method === 'steps' ? '%' : '', word: AJ.unit === 'sheets' ? 'sheets' : '', total: AJ.method === 'qty' ? total : AJ.method === 'steps' ? 100 : 1, done: 0, pend: 0, steps: AJ.method === 'steps' ? 'No steps done yet' : undefined, idle: 'Not started' };
+    }
+    const pid = AJ.pid; AJ = null;
+    await assignJob(pid, jid, t);
+    refreshDrawer();
+  },
+  'unassign': (t) => { const j = S.jobs[t.dataset.job]; const pid = j.who; j.who = null; refreshTags(pid); addLog(`<b>${esc(person(pid).name)}</b> came off ${esc(j.name)}. It needs someone.`); renderRail(); refreshDrawer(); },
+  'save-details': (t) => { const p = person(t.dataset.id); const n = $('#pName').value.trim(); if (!n) { toast('A name is needed for the nameplate.', 'alert'); return; } p.name = n; p.contact = $('#pContact').value.trim(); refreshWs(p); refreshDrawer(); renderRail(); toast('Details saved.'); },
+  'ask-remove': (t) => { const p = person(t.dataset.id); const n = jobsOf(p.id).length; showConfirm({ title: `Remove ${p.name}?`, okLabel: 'Remove from office', okClass: 'btn--primary', icon: 'trash', body: `<p>Their Assistant stops taking messages from ${esc(p.contact || 'their phone')}. Approved history stays locked in the record.${n ? ` ${n} job${n === 1 ? '' : 's'} will need someone new.` : ''}</p>`, onOk: () => removePerson(p.id) }); },
+  'approve': (t) => askApprove([t.dataset.id]),
+  'approve-batch': () => askApprove(S.inbox.filter(i => i.state === 'waiting' && i.group === 'routine').map(i => i.id)),
+  'ask-item': (t) => { const i = S.inbox.find(x => x.id === t.dataset.id); $('#inl-' + i.id).innerHTML = inlineAsk(i); $('#inl-' + i.id).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' }); },
+  'req-changes': (t) => { const i = S.inbox.find(x => x.id === t.dataset.id); $('#inl-' + i.id).innerHTML = inlineChanges(i); $('#inl-' + i.id).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' }); },
+  'inline-cancel': (t) => { $('#inl-' + t.dataset.id).innerHTML = ''; },
+  'send-q': (t) => { const i = S.inbox.find(x => x.id === t.dataset.id); const own = $('#q-' + i.id); const q = t.dataset.q || (own && own.value.trim()); if (!q) { own && own.focus(); return; } i.asked = q; const p = person(i.who); if (p) setBubble(p.id, 'warn', 'You asked 1 question', 'chat'); addLog(`You asked <b>${esc(p ? p.name : '')}</b>: “${esc(q)}”`); toast(`Question sent to ${p ? first(p) + '’s' : 'their'} Assistant. It’s pinned to the report.`, 'send'); refreshDrawer(); },
+  'send-changes': (t) => { const i = S.inbox.find(x => x.id === t.dataset.id); const inl = $('#inl-' + i.id); const picked = $$('input[data-miss]', inl).filter(c => c.checked).map(c => (i.missing.length ? i.missing : ['Clearer photos'])[+c.dataset.miss]); const note = ($('#cn-' + i.id).value || '').trim(); i.state = 'changes'; i.changeNote = `Needs: ${picked.join(', ') || 'a closer look'}${note ? `. “${note}”` : ''}`; const j = S.jobs[i.job]; j.pend = Math.max(0, j.pend - i.delta); if (j.id === 'sewer') { delete j.flag; j.note = `Needs ${picked.length || 1} fix${picked.length > 1 ? 'es' : ''} from K. Lee`; j.noteTone = 'warn'; } const p = person(i.who); if (p) setBubble(p.id, 'warn', `Changes requested · ${picked.length || 1}`, 'alert'); addLog(`You sent <b>${esc(j.tag)} · ${esc(i.change)}</b> back: ${esc(i.changeNote)}`); toast('Sent back with the missing list.', 'send'); refreshDrawer(); renderRail(); },
+  'evidence': (t) => openEvidence(t.dataset.label),
+  'ask-q': (t) => ask(t.dataset.q),
+  'amend': (t) => { $(`#amend-${t.dataset.proj}-${t.dataset.idx}`).innerHTML = amendForm(t.dataset.proj, +t.dataset.idx); },
+  'amend-cancel': (t) => { $(`#amend-${t.dataset.proj}-${t.dataset.idx}`).innerHTML = ''; },
+  'amend-preview': (t) => {
+    const pr = project(t.dataset.proj), idx = +t.dataset.idx, h = pr.history[idx];
+    const nt = $('#amT').value.trim(), why = $('#amW').value.trim();
+    if (!why) { $('#amErr').hidden = false; $('#amW').focus(); return; }
+    showConfirm({ title: 'Add this amendment?', okLabel: 'Amend and lock', okClass: 'btn--primary', icon: 'pen', body: `<div class="entry"><div class="entry__text struck">${esc(h.text)}</div><div class="amend"><div class="amend__by">Amended by you · Oct 20, ${esc(simTime())}</div><div class="entry__text">${esc(nt)}</div><div class="amend__by">Reason: ${esc(why)}</div></div></div><p>The original stays readable under the line. Both are locked.</p>`, onOk: () => { h.amend = { at: 'Oct 20, ' + simTime(), by: 'You', text: nt, why }; addLog(`You amended a locked entry on <b>${esc(pr.short)}</b>: ${esc(why)}`); refreshDrawer(); toast('Amendment added. The original stays on the record.', 'pen'); } });
+  },
+};
+function openAssign(jid) {
+  const j = S.jobs[jid];
+  openDrawer({ key: 'assign:' + jid, eyebrow: 'Assign a job', title: j.name, sub: 'Who should report on this?', body: `<div class="picklist">${S.people.filter(p => p.id !== 'you').map(p => `<button class="pick" data-act="assign-to" data-job="${jid}" data-id="${p.id}">${avatar(p)}<span class="pick__t">${esc(p.name)}<small>${esc(p.org || ROLES[p.role].label)} · ${jobsOf(p.id).length} jobs</small></span>${ic('arrow')}</button>`).join('')}</div>` });
+}
+document.addEventListener('click', (e) => {
+  const ws = e.target.closest('.ws[data-person]');
+  if (ws) { openPerson(ws.dataset.person); return; }
+  const t = e.target.closest('[data-act]');
+  if (t && ACTS[t.dataset.act]) { e.preventDefault(); ACTS[t.dataset.act](t, e); }
+});
+document.addEventListener('change', (e) => {
+  const r = e.target.closest('fieldset[data-role-for] input[type="radio"]');
+  if (r) changeRole(r.closest('fieldset').dataset.roleFor, r.value);
+});
+document.addEventListener('submit', (e) => {
+  if (e.target.id === 'askForm') { e.preventDefault(); const i = $('#askInput'); ask(i.value); i.value = ''; i.focus(); }
+});
+$('#scrim').addEventListener('click', () => { if (!$('#modal').hidden) closeModal(); else closeDrawer(); });
+$('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const c = $('#drawer .confirm'); if (c) { c.remove(); return; }
+  if (!$('#modal').hidden) closeModal(); else closeDrawer();
+});
+
+/* ================= boot ================= */
+S.log = [
+  { t: '1:50 PM', html: '<b>J. Ortiz</b>’s Assistant sent a report to the in-tray: <span class="mono">+320 LF</span>, Sta 12+00 to 15+20' },
+  { t: '1:44 PM', html: '<b>J. Ortiz</b> sent a voice note: “Laid 320 feet today, test crew tomorrow.”', chip: 'Voice note · 0:38' },
+  { t: '1:42 PM', html: '<b>J. Ortiz</b> sent 12 photos from Sta 12+00 to 15+20', chip: 'Photo 3 · 12+40' },
+  { t: '12:12 PM', html: '<b>Dana Brooks</b>’s Assistant flagged K. Lee’s CCTV report: 2 photos match Oct 13' },
+  { t: '12:10 PM', html: '<b>K. Lee</b> sent the CCTV report for MH-4 to MH-7', chip: 'CCTV report p.2' },
+  { t: '11:30 AM', html: '<b>S. Patel</b> went offline at Outfall 2. Items are queued on their phone.' },
+  { t: '10:05 AM', html: '<b>D. Chen</b>’s Assistant sent 4 sheets to the in-tray: <span class="mono">W-38 to W-41</span>', chip: 'Sheet W-38' },
+];
+renderRooms(); renderRail(); renderLog(false); updateClocks();
+setInterval(tick, 5200);
+})();
+</script>
