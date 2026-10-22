@@ -354,8 +354,12 @@ def propose_plan(db: Session, settings: Settings, project: Project) -> list[Plan
     for n, it in enumerate(proposed):
         who = next((p for r in it.roles for p in team if p.role == r), None)
         if who is None:
+            # Same kind of work (field or office) first, then the PM; the owner is the last resort.
             field_work = any(r in FIELD_ROLES for r in it.roles)
-            who = next((p for p in team if (p.role in FIELD_ROLES) == field_work), team[0] if team else None)
+            ranked = sorted(
+                team, key=lambda p: ((p.role in FIELD_ROLES) != field_work, p.role == "owner", p.role != "pm")
+            )
+            who = ranked[0] if ranked else None
         item = PlanItem(
             project_id=project.id,
             position=n,

@@ -204,6 +204,8 @@ def test_project_setup_reads_documents_and_needs_quantities(owner):
     )  # not in the documents: blank, never invented
     assert items["RCP"]["person_id"] == people["J. Ortiz"]["id"]
     assert items["SW3P"]["person_id"] == people["S. Patel"]["id"]
+    # No CAD tech on the team: office work goes to the PM, not the owner.
+    assert items["IFC sheets"]["person_id"] == people["Dana Brooks"]["id"]
 
     blank = owner.post(f"/api/projects/{pid}/plan/approve", json={"items": []})
     assert blank.status_code == 400 and "Add a quantity" in blank.json()["detail"]

@@ -1,0 +1,56 @@
+/* Field app: one column, big targets, works in sun and gloves. Builds on office.css tokens. */
+body.fieldapp{min-height:100%; padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.fbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--btn); color:var(--btn-fg)}
+body.fieldapp::before{background:var(--btn)}
+.fbar__in{display:flex; align-items:center; gap:10px; min-height:60px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); max-width:720px; margin:0 auto}
+.fbar__mark{width:30px; height:30px; flex:none}
+.fbar__who{display:flex; flex-direction:column; line-height:1.2; min-width:0}
+.fbar__who b{font-size:17px}
+.fbar__who span{font-size:13px; opacity:.8}
+.offline{display:flex; align-items:center; gap:8px; padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px)); background:var(--warn-bg); color:var(--warn); font-weight:600; font-size:15px}
+.fmain{max-width:720px; margin:0 auto; padding:14px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px)); display:flex; flex-direction:column; gap:14px}
+.jobhead{display:flex; flex-direction:column; gap:10px}
+.jobpick{display:flex; gap:8px; overflow-x:auto; padding-bottom:2px}
+.jobpick button{flex:none; min-height:44px; padding:0 14px; border-radius:22px; border:1.5px solid var(--line); background:var(--card); font-weight:600; font-size:14px; cursor:pointer}
+.jobpick button[aria-pressed="true"]{background:var(--btn); color:var(--btn-fg); border-color:var(--btn)}
+.jobcard{padding:14px; border-radius:12px; background:var(--card); border:1px solid var(--line); display:flex; flex-direction:column; gap:8px}
+.jobcard h1{font-size:19px; letter-spacing:-.01em}
+.draft{border-radius:14px; background:var(--card); border:1.5px solid var(--ink); overflow:hidden}
+.draft:empty{display:none}
+.draft__head{display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; min-height:52px; padding:10px 14px; background:var(--bg); border:0; border-bottom:1px solid var(--line); cursor:pointer; text-align:left; font-weight:700; font-size:15px}
+.draft__head .ic{transition:transform .2s}
+.draft.collapsed .draft__head .ic{transform:rotate(-90deg)}
+.draft.collapsed .draft__body{display:none}
+.draft__body{padding:14px; display:flex; flex-direction:column; gap:12px}
+.big{font:600 30px/1.1 var(--mono); letter-spacing:-.02em}
+.big small{display:block; font:500 15px var(--mono); color:var(--slate); margin-top:4px}
+.claims{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:3px; font-size:16px}
+.missing{padding:10px 12px; border-radius:10px; background:var(--warn-bg); color:var(--warn); font-size:15px}
+.missing b{display:block}
+.note{padding:10px 12px; border-radius:10px; background:var(--pend-bg); color:var(--pend); font-size:15px}
+.thread{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.m{max-width:86%; display:flex; flex-direction:column; gap:6px}
+.m--me{align-self:flex-end; align-items:flex-end}
+.m--a{align-self:flex-start}
+.m time{font:500 12px var(--mono); color:var(--slate)}
+.mb{padding:10px 14px; border-radius:16px; font-size:16px; line-height:1.45}
+.m--me .mb{background:var(--btn); color:var(--btn-fg); border-bottom-right-radius:4px}
+.m--a .mb{background:var(--card); border:1px solid var(--line); border-bottom-left-radius:4px}
+.m--mgr .mb{background:var(--warn-bg); color:var(--ink); border:1px solid transparent}
+.m--ok .mb{background:var(--ok-bg); color:var(--ok)}
+.mwho{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--slate)}
+.photo{display:block; width:220px; max-width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; border:1px solid var(--line); background:var(--none-bg)}
+.filechip{display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:6px 12px 6px 6px; border-radius:12px; background:var(--card); border:1px solid var(--line); color:var(--ink); text-decoration:none; font-size:15px}
+.voice{display:flex; flex-direction:column; gap:4px}
+.wave{display:flex; align-items:center; gap:2px; height:26px}
+.wave i{width:3px; border-radius:2px; background:currentColor; opacity:.8}
+.pending{opacity:.65}
+.empty-state{padding:24px 16px; text-align:center; color:var(--slate); font-size:16px}
+.composer2{position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; align-items:center; gap:6px; padding:10px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px)); background:var(--card); border-top:1px solid var(--line)}
+.cbtn{display:inline-grid; place-items:center; flex:none; width:48px; height:48px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer}
+.cbtn .ic{width:22px; height:22px}
+.cbtn--send{background:var(--accent); border-color:var(--accent); color:#14213D}
+.cbtn.rec{background:var(--bad); border-color:var(--bad); color:#fff; animation:livepulse 1.2s infinite}
+.ctext{flex:1; min-width:0; min-height:48px; padding:0 14px; border-radius:24px; border:1.5px solid var(--line); background:var(--bg); font-size:16px}
+.ctext:focus{outline:none; border-color:var(--focus)}
+.sendbtn{min-height:56px; font-size:17px}

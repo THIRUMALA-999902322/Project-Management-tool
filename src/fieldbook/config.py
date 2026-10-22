@@ -44,7 +44,11 @@ class Settings:
             return True
         if self.assistant_mode == "rules":
             return False
-        return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
+        return bool((os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN") or "").strip())
+
+
+def _env(name: str, default: str) -> str:
+    return (os.environ.get(name) or default).strip()
 
 
 def load_settings(**overrides) -> Settings:
@@ -55,12 +59,12 @@ def load_settings(**overrides) -> Settings:
     values = {
         "data_dir": data_dir,
         "database_url": database_url,
-        "assistant_mode": os.environ.get("FIELDBOOK_ASSISTANT", "auto"),
-        "claude_model": os.environ.get("FIELDBOOK_CLAUDE_MODEL", "claude-opus-5-5"),
-        "claude_effort": os.environ.get("FIELDBOOK_CLAUDE_EFFORT", "medium"),
-        "claude_max_tokens": int(os.environ.get("FIELDBOOK_CLAUDE_MAX_TOKENS", "16000")),
+        "assistant_mode": _env("FIELDBOOK_ASSISTANT", "auto").lower(),
+        "claude_model": _env("FIELDBOOK_CLAUDE_MODEL", "claude-opus-5-5"),
+        "claude_effort": _env("FIELDBOOK_CLAUDE_EFFORT", "medium").lower(),
+        "claude_max_tokens": int(_env("FIELDBOOK_CLAUDE_MAX_TOKENS", "16000")),
         "dev_autologin": _bool("FIELDBOOK_DEV_AUTOLOGIN"),
-        "public_url": os.environ.get("FIELDBOOK_PUBLIC_URL", "http://localhost:8000").rstrip("/"),
+        "public_url": _env("FIELDBOOK_PUBLIC_URL", "http://localhost:8000").rstrip("/"),
     }
     values.update(overrides)
     settings = Settings(**values)
