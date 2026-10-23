@@ -1,6 +1,6 @@
 """Deterministic reading of what people send: stations, quantities, checklist evidence.
 
-Used on its own when Claude is not configured, and always as a cross-check on Claude's
+Used on its own when no model is configured, and always as a cross-check on the model's
 observations (e.g. a quantity that doesn't match the station span).
 """
 

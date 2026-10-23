@@ -1,8 +1,8 @@
 """The manager's Assistant: check a submitted report against the original files and the plan.
 
 Every check that can be code is code (duplicate photos, history, plan overrun, station
-continuity, checklist). Claude, when configured, adds what only it can do: look at the
-photos and documents and say what they actually show next to what was claimed.
+continuity, checklist). A local model, when configured, adds what only it can do: look at
+the photos and files and say what they show next to what was claimed.
 """
 
 from __future__ import annotations
@@ -13,12 +13,12 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from fieldbook.assistant import client, rules
+from fieldbook.assistant import llm, rules
 from fieldbook.config import Settings
 from fieldbook.ledger import effective_entries
 from fieldbook.models import Input, LedgerEntry, Report
 from fieldbook.progress import compute, fmt_num, fmt_qty
-from fieldbook.storage import DUP_DISTANCE, downscaled_jpeg, hamming, read_blob
+from fieldbook.storage import DUP_DISTANCE, downscaled_jpeg, hamming, pdf_text_pages, read_blob
 
 NOTE = "Checked against the original files, not the summary."
 
@@ -159,24 +159,26 @@ def review(db: Session, settings: Settings, report: Report) -> dict[str, Any]:
         questions.append(report.question)
 
     checked_by = "rules"
-    if settings.use_claude and (photos or docs):
-        content: list[dict] = [
-            {"type": "text", "text": "Claims:\n" + "\n".join(f"- {c}" for c in report.claims or [report.summary])}
-        ]
-        for p in photos[-settings.claude_max_images :]:
-            jpeg = downscaled_jpeg(read_blob(settings, p.blob), max_side=1024) if p.blob else None
-            if jpeg:
-                content.append(client.image_block(jpeg))
+    if settings.use_llm and (photos or docs):
+        lines = ["Claims:", *[f"- {c}" for c in report.claims or [report.summary]]]
         for d in docs:
-            if d.blob and d.blob.mime == "application/pdf" and d.blob.size < 8_000_000:
-                content.append(client.pdf_block(read_blob(settings, d.blob), title=d.filename))
-        ev = client.structured(
-            db, settings, purpose="review_evidence", system=SYSTEM, content=content, output=EvidenceOut
-        )
+            if d.blob and d.blob.mime == "application/pdf":
+                excerpt, _ = llm.clip(
+                    "\n".join(pdf_text_pages(read_blob(settings, d.blob))), settings.llm_max_input_chars // 3
+                )
+                if excerpt.strip():
+                    lines += [f"File {d.filename}:", excerpt]
+        content: list[dict] = [llm.text_part("\n".join(lines))]
+        for p in photos[-settings.llm_max_images :]:
+            jpeg = downscaled_jpeg(read_blob(settings, p.blob), max_side=896) if p.blob else None
+            if jpeg:
+                content.append(llm.image_part(jpeg))
+        ev = llm.structured(db, settings, purpose="review_evidence", system=SYSTEM, content=content, output=EvidenceOut)
         if ev is not None:
             shows = ev.shows + [s for s in shows if s[0].isdigit()]
-            flags += [{"tone": "warn", "text": c} for c in ev.concerns]
-            checked_by = "claude"
+            # The model's concerns are opinions, so they are labelled and never flag a report on their own.
+            flags += [{"tone": "warn", "text": f"Assistant: {c}"} for c in ev.concerns[:3]]
+            checked_by = "llm"
 
     bad = [f for f in flags if f["tone"] == "bad"]
     warn = [f for f in flags if f["tone"] == "warn"]

@@ -167,7 +167,7 @@ class Report(Base):
     claims: Mapped[list[str]] = mapped_column(JSON, default=list)
     missing: Mapped[list[str]] = mapped_column(JSON, default=list)
     question: Mapped[str | None] = mapped_column(String(300))  # the Assistant's clarifying question
-    drafted_by: Mapped[str] = mapped_column(String(20), default="rules")  # rules | claude
+    drafted_by: Mapped[str] = mapped_column(String(20), default="rules")  # rules | llm
     review: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     manager_questions: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
     change_note: Mapped[str | None] = mapped_column(Text)
@@ -245,7 +245,7 @@ class Event(Base):
 
 
 class UsageLog(Base):
-    """One row per Claude API call: what it was for and what it cost in tokens."""
+    """One row per model call: what it was for, which model, tokens, and why it failed if it did."""
 
     __tablename__ = "usage_log"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -255,8 +255,6 @@ class UsageLog(Base):
     stop_reason: Mapped[str | None] = mapped_column(String(30))
     input_tokens: Mapped[int] = mapped_column(Integer, default=0)
     output_tokens: Mapped[int] = mapped_column(Integer, default=0)
-    cache_read_tokens: Mapped[int] = mapped_column(Integer, default=0)
-    cache_write_tokens: Mapped[int] = mapped_column(Integer, default=0)
     request_id: Mapped[str | None] = mapped_column(String(100))
     note: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

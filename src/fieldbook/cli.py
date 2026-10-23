@@ -23,9 +23,7 @@ def cmd_serve(args) -> None:
     from fieldbook.app import create_app
 
     settings = load_settings()
-    print(
-        f"Fieldbook on http://{args.host}:{args.port} · Assistant: {'Claude' if settings.use_claude else 'rules engine'}"
-    )
+    print(f"Fieldbook on http://{args.host}:{args.port} · Assistant: {settings.assistant_label}")
     uvicorn.run(create_app(settings), host=args.host, port=args.port, log_level="info")
 
 
@@ -80,6 +78,16 @@ def cmd_verify(_args) -> None:
         sys.exit(f"Ledger BROKEN at seq {v.broken_at_seq}: {v.reason}")
 
 
+def cmd_doctor(_args) -> None:
+    from fieldbook.assistant.llm import check
+
+    settings = load_settings()
+    ok, detail = check(settings)
+    print(("OK   " if ok else "WARN ") + detail)
+    if not ok and settings.llm_model:
+        sys.exit(1)
+
+
 def cmd_usage(_args) -> None:
     from fieldbook.models import UsageLog
 
@@ -88,7 +96,7 @@ def cmd_usage(_args) -> None:
     totals = (func.count(), func.sum(UsageLog.input_tokens), func.sum(UsageLog.output_tokens), ok)
     rows = db.execute(select(UsageLog.purpose, *totals).group_by(UsageLog.purpose)).all()
     if not rows:
-        print("No Claude calls logged yet.")
+        print("No model calls logged yet.")
     for purpose, n, tin, tout, ok in rows:
         print(f"{purpose:<16} calls {n:>4}  ok {ok or 0:>4}  input {tin or 0:>9,}  output {tout or 0:>8,}")
 
@@ -107,7 +115,8 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("who")
     s.set_defaults(fn=cmd_link)
     sub.add_parser("verify", help="check the ledger's hash chain").set_defaults(fn=cmd_verify)
-    sub.add_parser("usage", help="Claude token usage by purpose").set_defaults(fn=cmd_usage)
+    sub.add_parser("usage", help="model calls and tokens by purpose").set_defaults(fn=cmd_usage)
+    sub.add_parser("doctor", help="check the model server and models").set_defaults(fn=cmd_doctor)
     args = parser.parse_args(argv)
     args.fn(args)
 

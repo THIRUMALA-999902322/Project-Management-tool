@@ -38,7 +38,7 @@ def test_seeded_office_matches_the_brief(owner):
     chen = inbox[people["D. Chen"]["id"]]
     assert chen["group"] == "routine" and chen["usual"] == "4 sheets today vs. this crew's usual 3 sheets"
     assert people["S. Patel"]["link"] == "offline" and people["S. Patel"]["queued"] == 12
-    assert snap["assistant"] == "rules"
+    assert snap["assistant"] == {"mode": "rules", "label": "Rules engine"}
 
 
 def test_office_needs_a_manager_login(app, seeded, field):

@@ -85,7 +85,7 @@ def office(
     return {
         "org": {"id": org.id, "name": org.name},
         "me": {"id": me.id, "name": me.name, "role": me.role},
-        "assistant": "claude" if settings.use_claude else "rules",
+        "assistant": {"mode": "llm" if settings.use_llm else "rules", "label": settings.assistant_label},
         "people": [views.person_view(p, recent.get(p.id, [])) for p in people],
         "projects": [
             {

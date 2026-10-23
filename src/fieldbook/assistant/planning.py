@@ -14,13 +14,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from fieldbook.assistant import client, rules
+from fieldbook.assistant import llm, rules
 from fieldbook.config import Settings
 from fieldbook.models import Document, Person, Project
 from fieldbook.storage import pdf_text_pages, read_blob
-
-MAX_PDF_BYTES = 24_000_000  # stay under the 32 MB request limit after base64
-MAX_PDF_PAGES = 550  # the API reads up to 600 pages per request
 
 SYSTEM = """You are a project manager's Assistant setting up a civil engineering project (water, sewer, drainage, paving). Read the scope documents and propose the plan: the measurable work items progress will be tracked against.
 
@@ -137,8 +134,35 @@ def _doc_lines(docs: list[tuple[Document, bytes]]) -> list[tuple[str, int, str]]
     return lines
 
 
+def _pages(pdfs: list[tuple[Document, bytes]]) -> list[tuple[str, int, str]]:
+    return [(d.filename, n, text) for d, data in pdfs for n, text in enumerate(pdf_text_pages(data), start=1)]
+
+
+def _select_pages(pages: list[tuple[str, int, str]], budget: int) -> tuple[list[tuple[str, int, str]], int]:
+    """The pages most likely to hold quantities (bid forms, schedules) that fit the model's budget."""
+    scored = sorted(
+        ((len(QTY_ON_LINE.findall(text)), name, n, text) for name, n, text in pages if text.strip()),
+        key=lambda x: -x[0],
+    )
+    chosen, used = [], 0
+    for hits, name, n, text in scored:
+        if hits == 0 and chosen:
+            break
+        if used + len(text) > budget:
+            continue
+        chosen.append((name, n, text))
+        used += len(text)
+    return chosen, sum(1 for h, *_ in scored if h) - sum(1 for c in chosen if QTY_ON_LINE.search(c[2]))
+
+
+def _in_text(quantity: float, text: str) -> bool:
+    """Did the documents actually print this number? Guards against a model inventing one."""
+    whole = f"{quantity:,.0f}" if float(quantity).is_integer() else f"{quantity:,}"
+    return any(v in text for v in {whole, whole.replace(",", ""), f"{quantity:g}"})
+
+
 def propose(db: Session, settings: Settings, project: Project) -> tuple[list[Proposed], list[str], str]:
-    """Returns (items, notes for the owner, "claude" | "rules")."""
+    """Returns (items, notes for the owner, "llm" | "rules")."""
     docs = [
         (d, read_blob(settings, d.blob))
         for d in db.scalars(select(Document).where(Document.project_id == project.id, Document.status == "ready"))
@@ -148,44 +172,56 @@ def propose(db: Session, settings: Settings, project: Project) -> tuple[list[Pro
     others = [d.filename for d, _ in docs if d.blob.mime != "application/pdf"]
     if others:
         notes.append(f"Not read (only PDFs are read in this version): {', '.join(others)}")
+    pages = _pages(pdfs)
+    blank = sum(1 for *_, text in pages if not text.strip())
+    if blank:
+        notes.append(
+            f"{blank} page{'s' if blank != 1 else ''} had no text layer (scanned drawings) and could not be read."
+        )
 
-    if settings.use_claude and pdfs:
-        size = sum(len(data) for _, data in pdfs)
-        pages = sum(d.blob.pages or 0 for d, _ in pdfs)
-        if size > MAX_PDF_BYTES or pages > MAX_PDF_PAGES:
+    if settings.use_llm and pages:
+        chosen, skipped = _select_pages(pages, settings.llm_max_input_chars)
+        if skipped:
             notes.append(
-                f"The documents are {pages} pages and {size / 1e6:.0f} MB, more than one read can take. "
-                "The plan below comes from the bid form text; upload the bid form and quantity sheets on their own for a full read."
+                f"{skipped} more page{'s' if skipped != 1 else ''} with quantities did not fit in one read. "
+                "Check the plan against the full bid form, or raise FIELDBOOK_LLM_MAX_INPUT_CHARS for a model with a larger context."
             )
-        else:
-            team = [p for p in db.scalars(select(Person).where(Person.id.in_([m.person_id for m in project.members])))]
-            intro = (
-                f"Project: {project.name}. Client: {project.client or 'not given'}. "
-                f"Kinds of work: {', '.join(project.work_types) or 'not given'}. "
-                f"Team roles available: {', '.join(sorted({p.role for p in team})) or 'pm'}."
-            )
-            content = [client.pdf_block(data, title=d.filename) for d, data in pdfs]
-            content.append({"type": "text", "text": intro})
-            out = client.structured(
-                db, settings, purpose="propose_plan", system=SYSTEM, content=content, output=PlanOut, effort="high"
-            )
-            if out is not None:
-                checklists = {row[1]: row[6] for t in LIBRARY.values() for row in t} | {
-                    row[1]: row[6] for row in ALWAYS
-                }
-                items = [
+        team = [p for p in db.scalars(select(Person).where(Person.id.in_([m.person_id for m in project.members])))]
+        intro = (
+            f"Project: {project.name}. Client: {project.client or 'not given'}. "
+            f"Kinds of work: {', '.join(project.work_types) or 'not given'}. "
+            f"Team roles available: {', '.join(sorted({p.role for p in team})) or 'pm'}.\n\n"
+            "Document pages (each starts with its file name and page number, use those for `source`):"
+        )
+        body = "\n\n".join(f"=== {name} p.{n} ===\n{text}" for name, n, text in chosen)
+        out = llm.structured(
+            db,
+            settings,
+            purpose="propose_plan",
+            system=SYSTEM,
+            content=[llm.text_part(f"{intro}\n\n{body}")],
+            output=PlanOut,
+        )
+        if out is not None:
+            checklists = {row[1]: row[6] for t in LIBRARY.values() for row in t} | {row[1]: row[6] for row in ALWAYS}
+            items = []
+            for i in out.items:
+                qty, source = i.quantity, i.source
+                if qty is not None and not _in_text(qty, body):
+                    qty, source = None, "The model's figure is not in the documents · enter from the plans"
+                items.append(
                     Proposed(
                         name=i.name,
                         tag=i.tag[:40],
                         method=i.method if i.method in ("qty", "steps", "done") else "qty",
-                        quantity=i.quantity,
+                        quantity=qty,
                         unit=rules.norm_unit(i.unit) or "",
-                        source=i.source,
+                        source=source,
                         roles=[i.role],
-                        found=i.quantity is not None,
+                        found=qty is not None,
                         checklist=checklists.get(i.tag, ["Photos"] if i.role in ("crew", "contractor") else []),
                     )
-                    for i in out.items
-                ]
-                return items, notes + out.notes, "claude"
+                )
+            if items:
+                return items, notes + out.notes[:3], "llm"
     return _rules_plan(project.work_types, _doc_lines(pdfs)), notes, "rules"

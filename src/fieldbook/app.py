@@ -89,6 +89,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/healthz", include_in_schema=False)
     def health():
-        return {"ok": True, "assistant": "claude" if settings.use_claude else "rules"}
+        return {"ok": True, "assistant": settings.assistant_label}
 
     return app

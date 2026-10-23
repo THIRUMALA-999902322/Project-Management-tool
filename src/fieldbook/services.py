@@ -666,7 +666,7 @@ def _packet_label(kind: str, text: str | None, upload: Upload | None) -> str:
 
 
 def redraft(db: Session, settings: Settings, report: Report) -> Report:
-    """Re-read the report's inputs (Claude or rules) and show the person the new draft."""
+    """Re-read the report's inputs (local model or rules) and show the person the new draft."""
     person = report.person
     drafting.draft(db, settings, report)
     report.updated_at = utcnow()

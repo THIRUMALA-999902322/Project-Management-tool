@@ -1,7 +1,8 @@
 """Ask: the owner's Assistant answers questions across all jobs, with sources.
 
-Claude gets a compact snapshot of the current state (computed by code) and answers only from
-it. Without Claude, a handful of common questions are answered directly from the same data.
+A local model gets a compact snapshot of the current state (computed by code) and answers only
+from it; cited sources that are not in the snapshot are dropped. Without a model, the common
+questions are answered directly from the same data.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from fieldbook.assistant import client
+from fieldbook.assistant import llm
 from fieldbook.config import Settings
 from fieldbook.models import Event, Job, Person, Project, Report
 from fieldbook.progress import compute, fmt_qty, project_pct
@@ -137,21 +138,27 @@ def _rules_answer(snap: dict[str, Any], question: str) -> AnswerOut:
     )
 
 
+def _labels(snap: dict[str, Any]) -> set[str]:
+    return {row["label"] for key in ("projects", "jobs", "open_reports") for row in snap[key]}
+
+
 def answer(db: Session, settings: Settings, org_id: int, question: str) -> dict[str, Any]:
     snap = snapshot(db, org_id)
     out = None
-    if settings.use_claude:
-        out = client.structured(
+    if settings.use_llm:
+        # Most important first, so clipping only ever drops the oldest activity.
+        data, _ = llm.clip(json.dumps(snap, ensure_ascii=False, indent=0), settings.llm_max_input_chars)
+        out = llm.structured(
             db,
             settings,
             purpose="ask",
             system=SYSTEM,
-            content=[
-                {"type": "text", "text": f"Snapshot:\n{json.dumps(snap, ensure_ascii=False)}\n\nQuestion: {question}"}
-            ],
+            content=[llm.text_part(f"Snapshot:\n{data}\n\nQuestion: {question}")],
             output=AnswerOut,
-            effort="low",
         )
-    by = "claude" if out is not None else "rules"
+        if out is not None:
+            known = _labels(snap)
+            out.sources = [s for s in out.sources if s.label in known]
+    by = "llm" if out is not None else "rules"
     out = out or _rules_answer(snap, question)
     return {"answer": out.answer, "sources": [s.label for s in out.sources], "answered_by": by}

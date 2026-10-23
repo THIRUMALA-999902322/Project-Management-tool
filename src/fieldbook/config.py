@@ -1,7 +1,7 @@
 """Runtime settings, read once from the environment.
 
-Every knob that touches the Claude API (model id, effort, max tokens) lives here so it can
-change without touching the pipeline.
+Every knob that touches the language model (server, model names, timeouts, how much text to
+send) lives here, so it can change without touching the pipeline.
 """
 
 from __future__ import annotations
@@ -18,18 +18,30 @@ def _bool(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _env(name: str, default: str) -> str:
+    return (os.environ.get(name) or default).strip()
+
+
 @dataclass(frozen=True)
 class Settings:
     data_dir: Path
     database_url: str
-    # "auto": use Claude when credentials are present, else the rules engine.
-    # "claude": always use Claude. "rules": never call Claude (tests, offline demos).
+    # "auto": use the model when FIELDBOOK_LLM_MODEL is set, else the rules engine.
+    # "llm": always try the model. "rules": never call a model (tests, offline demos).
     assistant_mode: str = "auto"
-    claude_model: str = "claude-opus-5-5"
-    claude_effort: str = "medium"
-    claude_max_tokens: int = 16000
-    # Max photos sent to Claude per drafting call; each is downscaled first.
-    claude_max_images: int = 6
+    # Any OpenAI-compatible server: Ollama (default), vLLM, LM Studio, llama.cpp, LocalAI.
+    llm_base_url: str = "http://localhost:11434/v1"
+    llm_model: str = ""
+    # Model used when photos are attached; defaults to llm_model. Needs a vision model.
+    llm_vision_model: str = ""
+    llm_api_key: str = ""
+    llm_timeout: float = 180.0
+    # Text budget per request. Local models often run with 8k context; ~4 characters per token.
+    llm_max_input_chars: int = 12000
+    llm_max_images: int = 4
+    # "schema" asks the server to enforce the JSON schema; "object" only asks for JSON.
+    # Servers that reject "schema" are switched to "object" automatically.
+    llm_json_mode: str = "schema"
     # Treat every browser without a session as the owner. Local demos only.
     dev_autologin: bool = False
     public_url: str = "http://localhost:8000"
@@ -39,30 +51,35 @@ class Settings:
         return self.data_dir / "blobs"
 
     @property
-    def use_claude(self) -> bool:
-        if self.assistant_mode == "claude":
-            return True
-        if self.assistant_mode == "rules":
-            return False
-        return bool((os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN") or "").strip())
+    def use_llm(self) -> bool:
+        return self.assistant_mode != "rules" and bool(self.llm_model)
 
+    @property
+    def vision_model(self) -> str:
+        return self.llm_vision_model or self.llm_model
 
-def _env(name: str, default: str) -> str:
-    return (os.environ.get(name) or default).strip()
+    @property
+    def assistant_label(self) -> str:
+        return f"Local model · {self.llm_model}" if self.use_llm else "Rules engine"
 
 
 def load_settings(**overrides) -> Settings:
-    data_dir = Path(overrides.pop("data_dir", None) or os.environ.get("FIELDBOOK_DATA_DIR", "data")).resolve()
-    database_url = overrides.pop("database_url", None) or os.environ.get(
+    data_dir = Path(overrides.pop("data_dir", None) or _env("FIELDBOOK_DATA_DIR", "data")).resolve()
+    database_url = overrides.pop("database_url", None) or _env(
         "FIELDBOOK_DATABASE_URL", f"sqlite:///{data_dir / 'fieldbook.db'}"
     )
     values = {
         "data_dir": data_dir,
         "database_url": database_url,
         "assistant_mode": _env("FIELDBOOK_ASSISTANT", "auto").lower(),
-        "claude_model": _env("FIELDBOOK_CLAUDE_MODEL", "claude-opus-5-5"),
-        "claude_effort": _env("FIELDBOOK_CLAUDE_EFFORT", "medium").lower(),
-        "claude_max_tokens": int(_env("FIELDBOOK_CLAUDE_MAX_TOKENS", "16000")),
+        "llm_base_url": _env("FIELDBOOK_LLM_BASE_URL", "http://localhost:11434/v1").rstrip("/"),
+        "llm_model": _env("FIELDBOOK_LLM_MODEL", ""),
+        "llm_vision_model": _env("FIELDBOOK_LLM_VISION_MODEL", ""),
+        "llm_api_key": _env("FIELDBOOK_LLM_API_KEY", ""),
+        "llm_timeout": float(_env("FIELDBOOK_LLM_TIMEOUT", "180")),
+        "llm_max_input_chars": int(_env("FIELDBOOK_LLM_MAX_INPUT_CHARS", "12000")),
+        "llm_max_images": int(_env("FIELDBOOK_LLM_MAX_IMAGES", "4")),
+        "llm_json_mode": _env("FIELDBOOK_LLM_JSON_MODE", "schema").lower(),
         "dev_autologin": _bool("FIELDBOOK_DEV_AUTOLOGIN"),
         "public_url": _env("FIELDBOOK_PUBLIC_URL", "http://localhost:8000").rstrip("/"),
     }
