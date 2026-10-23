@@ -44,10 +44,9 @@ class Person(Base):
     status: Mapped[str] = mapped_column(String(20), default="active")  # invited | active | removed
     link: Mapped[str] = mapped_column(String(20), default="online")  # online | offline (reported by the field app)
     queued: Mapped[int] = mapped_column(Integer, default=0)
-    look: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    bubble_kind: Mapped[str] = mapped_column(String(20), default="idle")
-    bubble_text: Mapped[str] = mapped_column(String(200), default="Waiting for the first message")
-    bubble_icon: Mapped[str | None] = mapped_column(String(30))
+    # What the person's Assistant is doing now, in plain words ("Draft ready · +320 LF").
+    activity_kind: Mapped[str] = mapped_column(String(20), default="idle")
+    activity_text: Mapped[str] = mapped_column(String(200), default="Waiting for the first message")
     hired_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     removed_at: Mapped[datetime | None] = mapped_column(DateTime)
@@ -231,7 +230,7 @@ class LedgerEntry(Base):
 
 
 class Event(Base):
-    """The field book: an activity feed, and the source of the office's live animations."""
+    """The field book: the activity feed, and the source of the office app's live updates."""
 
     __tablename__ = "events"
     id: Mapped[int] = mapped_column(primary_key=True)

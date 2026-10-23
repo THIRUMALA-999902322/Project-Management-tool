@@ -120,7 +120,7 @@ def test_questions_reach_the_person(owner, field):
     report = next(r for r in snap["inbox"] if r["person_id"] == ortiz_id and r["state"] == "submitted")
     owner.post(f"/api/reports/{report['id']}/questions", json={"text": "When is the pressure test?"})
     mine = field("J. Ortiz").get("/api/field/me").json()
-    assert mine["person"]["bubble"]["text"].endswith("asked 1 question")
+    assert mine["person"]["activity"]["text"].endswith("asked 1 question")
     assert "When is the pressure test?" in next(r for r in mine["reports"] if r["id"] == report["id"])["asked"]
 
 
@@ -136,13 +136,13 @@ def test_hire_link_role_change_and_removal(app, owner):
     )
     assert r.status_code == 201
     priya = r.json()["person"]
-    assert priya["room"] == "trailer" and priya["look"]["hat"]
+    assert priya["team"] == "Field"
     c = TestClient(app)
     c.headers["Authorization"] = "Bearer " + r.json()["field_link"].rsplit("/", 1)[-1]
     assert [j["tag"] for j in c.get("/api/field/me").json()["jobs"]] == ["Paving"]
 
     moved = owner.patch(f"/api/people/{priya['id']}", json={"role": "cad"}).json()
-    assert moved["room"] == "design" and "hat" not in moved["look"]
+    assert moved["team"] == "Design"
 
     assert owner.delete(f"/api/people/{priya['id']}").json()["jobs_needing_someone"] == [paving["id"]]
     assert c.get("/api/field/me").status_code == 401  # link stops working
@@ -243,7 +243,7 @@ def test_amendment_keeps_the_original_readable(owner):
 
 def test_ask_answers_from_data(owner):
     r = owner.post("/api/ask", json={"question": "Which reports need a decision?"}).json()
-    assert r["answered_by"] == "rules" and r["answer"].startswith("4 in the in-tray") and r["sources"]
+    assert r["answered_by"] == "rules" and r["answer"].startswith("4 waiting for approval") and r["sources"]
     line_a = owner.post("/api/ask", json={"question": "What's holding up Line A?"}).json()
     assert "pressure test" in line_a["answer"].lower()
 

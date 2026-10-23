@@ -1,6 +1,6 @@
 # Design brief: Fieldbook — AI-assisted work tracking for civil projects
 
-> Original brief, kept as the source of requirements. The owner's home screen has since moved to an office metaphor; see `OFFICE_CONCEPT.md`.
+> Original brief, kept as the source of requirements. The product has since moved to a standard business layout (sidebar, approvals queue, tables); see `ARCHITECTURE.md`.
 
 ## What you're designing
 Fieldbook is a project-tracking app for civil engineering teams (water, sewer, drainage, paving; both design and construction work). Every person on a project gets an AI agent matched to their role, shown in the UI simply as "Assistant." People drop in whatever they have (photos, voice notes, PDFs, Word files, quick texts) and the assistant turns it into a structured, evidence-backed report. The manager has an assistant too: it checks each report against the original files and the job plan. The manager approves, progress updates, and approved history is locked for good.

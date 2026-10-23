@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -11,7 +12,7 @@ from fieldbook.db import iso
 from fieldbook.ledger import fingerprint
 from fieldbook.models import Event, Input, Job, LedgerEntry, Person, Project, Report
 from fieldbook.progress import JobProgress, fmt_qty
-from fieldbook.services import ROLE_LABEL, ROOM_OF
+from fieldbook.services import ROLE_LABEL, TEAM_OF
 
 
 def chip(inp: Input, n: int | None = None) -> dict[str, Any]:
@@ -48,13 +49,13 @@ def input_view(inp: Input) -> dict[str, Any]:
     }
 
 
-def person_view(p: Person, inputs: list[Input] | None = None) -> dict[str, Any]:
+def person_view(p: Person, inputs: list[Input] | None = None, last_active: datetime | None = None) -> dict[str, Any]:
     return {
         "id": p.id,
         "name": p.name,
         "role": p.role,
         "role_label": ROLE_LABEL[p.role],
-        "room": ROOM_OF[p.role],
+        "team": TEAM_OF[p.role],
         "company": p.company,
         "contact": p.contact,
         "device": p.device,
@@ -62,14 +63,14 @@ def person_view(p: Person, inputs: list[Input] | None = None) -> dict[str, Any]:
         "status": p.status,
         "link": p.link,
         "queued": p.queued,
-        "look": p.look,
-        "bubble": {"kind": p.bubble_kind, "text": p.bubble_text, "icon": p.bubble_icon},
+        "activity": {"kind": p.activity_kind, "text": p.activity_text},
+        "last_active": iso(last_active),
         "hired": p.hired_at is not None,
         "inputs": [input_view(i) for i in (inputs or [])],
     }
 
 
-def job_view(j: Job, prog: JobProgress) -> dict[str, Any]:
+def job_view(j: Job, prog: JobProgress, last_update: datetime | None = None) -> dict[str, Any]:
     return {
         "id": j.id,
         "project_id": j.project_id,
@@ -87,6 +88,7 @@ def job_view(j: Job, prog: JobProgress) -> dict[str, Any]:
         "qty_label": prog.qty_label,
         "assignee_id": j.assignee_id,
         "checklist": j.checklist,
+        "last_update": iso(last_update),
     }
 
 

@@ -1,6 +1,6 @@
 """The sample company from the design brief (Oak Hollow Water & Sewer Replacement).
 
-Built through the same services the API uses, so the in-tray, the review briefs, the ledger
+Built through the same services the API uses, so the approval queue, the review briefs, the ledger
 and the progress numbers are all computed, not typed in. Dates are relative to today.
 """
 
@@ -15,86 +15,10 @@ from sqlalchemy.orm import Session
 from fieldbook import ledger, services
 from fieldbook.config import Settings
 from fieldbook.db import utcnow
-from fieldbook.events import emit, set_bubble
+from fieldbook.events import emit, set_activity
 from fieldbook.models import Event, Job, Org, Person, Project, ProjectMember, Report
 from fieldbook.sample import make_pdf, make_photo, reencode
 from fieldbook.security import issue_token
-
-LOOKS: dict[str, dict[str, Any]] = {
-    "owner": {
-        "skin": "#E8B98F",
-        "hair": "gray",
-        "hair_color": "#9AA0A8",
-        "shirt": "#2A3A5E",
-        "glasses": True,
-        "prop": "mug",
-    },
-    "brooks": {"skin": "#8D5A3B", "hair": "bun", "hair_color": "#1F1A17", "shirt": "#2F6F73", "prop": "mug"},
-    "chen": {
-        "skin": "#F1C9A0",
-        "hair": "long",
-        "hair_color": "#1E1B1A",
-        "shirt": "#7A9E7E",
-        "glasses": True,
-        "prop": "mug",
-    },
-    "novak": {"skin": "#F3D2B3", "hair": "curly", "hair_color": "#8B4A2B", "shirt": "#6E94C8", "prop": "tube"},
-    "singh": {
-        "skin": "#A86B46",
-        "hair": "short",
-        "hair_color": "#2A2523",
-        "beard": True,
-        "shirt": "#8C3B4A",
-        "glasses": True,
-        "prop": "binder",
-    },
-    "ortiz": {
-        "skin": "#C68642",
-        "hair": "short",
-        "hair_color": "#2B211C",
-        "shirt": "#4B5563",
-        "vest": "#F07F1E",
-        "hat": "#F4F4F0",
-        "prop": "radio",
-    },
-    "lee": {
-        "skin": "#EAC39B",
-        "hair": "short",
-        "hair_color": "#151515",
-        "shirt": "#4B5563",
-        "vest": "#F07F1E",
-        "hat": "#3B6FB6",
-        "prop": "radio",
-    },
-    "alvarez": {
-        "skin": "#B97A50",
-        "hair": "long",
-        "hair_color": "#3A2618",
-        "shirt": "#4B5563",
-        "vest": "#F07F1E",
-        "hat": "#F2C230",
-        "prop": "radio",
-    },
-    "patel": {
-        "skin": "#9C6644",
-        "hair": "short",
-        "hair_color": "#1D1A18",
-        "beard": True,
-        "shirt": "#4B5563",
-        "vest": "#F07F1E",
-        "hat": "#4C9A5B",
-        "prop": "radio",
-    },
-    "ward": {
-        "skin": "#D9A47A",
-        "hair": "buzz",
-        "hair_color": "#6B4B32",
-        "shirt": "#2E3440",
-        "vest": "#D7E23A",
-        "hat": "#E46B1F",
-        "prop": "radio",
-    },
-}
 
 PEOPLE = [
     (
@@ -302,10 +226,8 @@ def seed(db: Session, settings: Settings) -> dict[str, Any]:
         device="laptop",
         location="Main office",
         status="active",
-        look=LOOKS["owner"],
-        bubble_kind="idle",
-        bubble_text="Ask me about any job",
-        bubble_icon="chat",
+        activity_kind="idle",
+        activity_text="Ask me about any job",
     )
     db.add(owner)
     db.flush()
@@ -315,9 +237,7 @@ def seed(db: Session, settings: Settings) -> dict[str, Any]:
     p: dict[str, Person] = {}
     field_tokens: dict[str, str] = {}
     for key, name, role, kw in PEOPLE:
-        person, raw = services.create_person(
-            db, org, name=name, role=role, actor=owner, look=LOOKS[key], announce=False, **kw
-        )
+        person, raw = services.create_person(db, org, name=name, role=role, actor=owner, announce=False, **kw)
         person.status, person.hired_at = "active", None
         p[key], field_tokens[key] = person, raw
     pm_token = issue_token(db, p["brooks"], "session")
@@ -531,7 +451,7 @@ def seed(db: Session, settings: Settings) -> dict[str, Any]:
     mark = _mark(db)
     patel = p["patel"]
     patel.link, patel.queued = "offline", 12
-    set_bubble(db, patel, "offline", "Offline · 12 items queued", "wifi-off")
+    set_activity(db, patel, "offline", "Offline · 12 items queued")
     emit(
         db,
         org.id,
@@ -542,11 +462,11 @@ def seed(db: Session, settings: Settings) -> dict[str, Any]:
     db.commit()
     _restamp(db, mark, now - timedelta(hours=3))
 
-    set_bubble(db, dana, "work", "Checking 4 reports")
-    set_bubble(db, p["lee"], "bad", "Flagged · 2 reused photos", "flag")
-    set_bubble(db, p["novak"], "work", "Marking up spec 33 11 13")
-    set_bubble(db, p["singh"], "work", "Reviewing W-30 to W-36")
-    set_bubble(db, p["ward"], "idle", "Waiting on Line A test", "clock")
+    set_activity(db, dana, "work", "Checking 4 reports")
+    set_activity(db, p["lee"], "bad", "Flagged · 2 reused photos")
+    set_activity(db, p["novak"], "work", "Marking up spec 33 11 13")
+    set_activity(db, p["singh"], "work", "Reviewing W-30 to W-36")
+    set_activity(db, p["ward"], "idle", "Waiting on Line A test")
     db.commit()
 
     base = settings.public_url

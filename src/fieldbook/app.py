@@ -60,7 +60,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         finally:
             db.close()
         if (person and person.role in MANAGER_ROLES) or settings.dev_autologin:
-            return FileResponse(WEB / "office.html")
+            return FileResponse(WEB / "app.html")
         return HTMLResponse(SIGN_IN_PAGE, status_code=401)
 
     @app.get("/login/{token}", include_in_schema=False)

@@ -87,7 +87,7 @@ def snapshot(db: Session, org_id: int) -> dict[str, Any]:
             {
                 "name": p.name,
                 "role": p.role,
-                "assistant_status": p.bubble_text,
+                "assistant_status": p.activity_text,
                 "link": p.link,
                 "queued": p.queued,
                 "inputs_today": len([e for e in events if e.person_id == p.id and e.type == "input.received"]),
@@ -103,14 +103,14 @@ def _rules_answer(snap: dict[str, Any], question: str) -> AnswerOut:
     if "decision" in q or "approv" in q or "tray" in q:
         rs = [r for r in snap["open_reports"] if r["status"] == "submitted"]
         if not rs:
-            return AnswerOut(answer="Nothing is waiting. The in-tray is clear.", sources=[])
+            return AnswerOut(answer="Nothing is waiting for approval.", sources=[])
         lines = "; ".join(f"{r['label'].split(' · ', 1)[1]} {r['change']}: {r['verdict']}" for r in rs)
         return AnswerOut(
-            answer=f"{len(rs)} in the in-tray. {lines}", sources=[Source(label=r["label"]) for r in rs[:4]]
+            answer=f"{len(rs)} waiting for approval. {lines}", sources=[Source(label=r["label"]) for r in rs[:4]]
         )
     if "far" in q or "progress" in q or "along" in q:
         parts = [
-            f"{p['name']} is {p['approved_pct']}% approved ({p['pct_when_approved']}% when the in-tray clears)"
+            f"{p['name']} is {p['approved_pct']}% approved ({p['pct_when_approved']}% once pending reports are approved)"
             for p in snap["projects"]
         ]
         return AnswerOut(answer=". ".join(parts) + ".", sources=[Source(label=p["label"]) for p in snap["projects"]])
@@ -127,7 +127,7 @@ def _rules_answer(snap: dict[str, Any], question: str) -> AnswerOut:
     for j in snap["jobs"]:
         if j["name"].lower().split(" · ")[0] in q or j["label"].split(" · ")[1].lower() in q:
             rs = [r for r in snap["open_reports"] if r["label"].endswith(j["label"].split(" · ")[1])]
-            extra = " ".join(f"{r['change']} is in the in-tray ({r['verdict']})" for r in rs)
+            extra = " ".join(f"{r['change']} is waiting for approval ({r['verdict']})" for r in rs)
             return AnswerOut(
                 answer=f"{j['name']}: {j['progress']}, {j['approved_pct']}% approved. Status: {j['status']}. {extra}".strip(),
                 sources=[Source(label=j["label"])] + [Source(label=r["label"]) for r in rs],

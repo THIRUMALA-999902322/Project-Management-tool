@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from fieldbook import ledger, services
@@ -15,6 +15,7 @@ from fieldbook.api import views
 from fieldbook.api.deps import get_db, get_settings, office_user
 from fieldbook.assistant import ask as ask_mod
 from fieldbook.config import Settings
+from fieldbook.db import utcnow
 from fieldbook.models import Blob, Document, Input, Job, LedgerEntry, Org, Person, PlanItem, Project, Report
 from fieldbook.progress import compute, project_pct
 
@@ -38,6 +39,19 @@ def _get(db: Session, model, id_: int, org_id: int, what: str):
     return obj
 
 
+def _last_update(db: Session, job_ids: list[int]) -> dict[int, Any]:
+    """Latest input or ledger entry per job."""
+    out: dict[int, Any] = {}
+    for model in (Input, LedgerEntry):
+        rows = db.execute(
+            select(model.job_id, func.max(model.created_at)).where(model.job_id.in_(job_ids)).group_by(model.job_id)
+        )
+        for jid, when in rows:
+            if when and (jid not in out or when > out[jid]):
+                out[jid] = when
+    return out
+
+
 # ---------------------------------------------------------------- snapshot
 
 
@@ -45,7 +59,7 @@ def _get(db: Session, model, id_: int, org_id: int, what: str):
 def office(
     db: Session = Depends(get_db), me: Person = Depends(office_user), settings: Settings = Depends(get_settings)
 ) -> dict[str, Any]:
-    """Everything the office scene needs in one call. Live changes then arrive on /api/events/stream."""
+    """Everything the office app needs in one call. Live changes then arrive on /api/events/stream."""
     org = _org(db, me)
     people = list(
         db.scalars(select(Person).where(Person.org_id == org.id, Person.status != "removed").order_by(Person.id))
@@ -82,11 +96,31 @@ def office(
         if r.status != "approved" or (r.decided_at and today_cut and (today_cut - r.decided_at).total_seconds() < 86400)
     ]
     log = views.event_log(db, org.id)
+    person_ids, job_ids = [p.id for p in people], [j.id for j in jobs]
+    last_active = dict(
+        db.execute(
+            select(Input.person_id, func.max(Input.created_at))
+            .where(Input.person_id.in_(person_ids))
+            .group_by(Input.person_id)
+        ).all()
+    )
+    last_update = _last_update(db, job_ids)
+    waiting = [r for r in inbox if r["state"] == "submitted"]
+    today = utcnow().date()
+    all_pct = project_pct(list(prog.values()))
     return {
         "org": {"id": org.id, "name": org.name},
         "me": {"id": me.id, "name": me.name, "role": me.role},
         "assistant": {"mode": "llm" if settings.use_llm else "rules", "label": settings.assistant_label},
-        "people": [views.person_view(p, recent.get(p.id, [])) for p in people],
+        "stats": {
+            "waiting": len(waiting),
+            "flagged": sum(1 for r in waiting if r["group"] == "flagged"),
+            "active_today": sum(1 for pid, when in last_active.items() if when and when.date() == today),
+            "people": len(people),
+            "approved_pct": all_pct[0],
+            "pending_pct": all_pct[1],
+        },
+        "people": [views.person_view(p, recent.get(p.id, []), last_active.get(p.id)) for p in people],
         "projects": [
             {
                 "id": p.id,
@@ -102,7 +136,7 @@ def office(
             }
             for p in projects
         ],
-        "jobs": [views.job_view(j, prog[j.id]) for j in jobs],
+        "jobs": [views.job_view(j, prog[j.id], last_update.get(j.id)) for j in jobs],
         "inbox": inbox,
         "log": log,
         "last_event_id": log[0]["id"] if log else 0,
@@ -352,6 +386,7 @@ def get_project(project_id: int, db: Session = Depends(get_db), me: Person = Dep
     project = _get(db, Project, project_id, me.org_id, "Project")
     jobs = list(db.scalars(select(Job).where(Job.project_id == project.id).order_by(Job.id)))
     prog = compute(db, jobs)
+    last_update = _last_update(db, [j.id for j in jobs])
     return {
         "id": project.id,
         "name": project.name,
@@ -360,13 +395,13 @@ def get_project(project_id: int, db: Session = Depends(get_db), me: Person = Dep
         "color": project.color,
         "plan_status": project.plan_status,
         "pct": project_pct(list(prog.values())),
-        "jobs": [views.job_view(j, prog[j.id]) for j in jobs],
+        "jobs": [views.job_view(j, prog[j.id], last_update.get(j.id)) for j in jobs],
         "team": [m.person_id for m in project.members],
         "history": views.project_history(db, project),
     }
 
 
-# ---------------------------------------------------------------- in-tray decisions
+# ---------------------------------------------------------------- approval decisions
 
 
 class ChangesIn(BaseModel):

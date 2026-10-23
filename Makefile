@@ -2,7 +2,7 @@
 -include .env
 export
 
-.PHONY: setup test lint demo serve seed verify
+.PHONY: setup test lint demo serve seed verify doctor
 
 setup:            ## install Python deps into .venv
 	uv sync
@@ -25,3 +25,6 @@ serve:
 
 verify:           ## check the ledger's hash chain
 	uv run fieldbook verify
+
+doctor:           ## check the model server and that the configured models are pulled
+	uv run fieldbook doctor

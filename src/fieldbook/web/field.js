@@ -7,7 +7,7 @@ const TOKEN = location.pathname.split('/').filter(Boolean).pop();
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ic = (name) => `<svg class="ic" aria-hidden="true"><use href="#i-${name}"/></svg>`;
-const asst = () => `<span class="asst"><svg aria-hidden="true"><use href="#i-asst"/></svg></span>`;
+const asst = () => `<span class="asst">${ic('spark')}</span>`;
 const fmtTime = (iso) => {
   if (!iso) return '';
   const d = new Date(iso), t = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -15,8 +15,8 @@ const fmtTime = (iso) => {
 };
 const fileUrl = (id) => `/api/field/files/${id}?token=${encodeURIComponent(TOKEN)}`;
 const TONE = { ok: 'check', pend: 'clock', warn: 'alert', bad: 'flag', none: 'clock' };
-const pill = (tone, text, icon) => `<span class="pill pill--${tone}">${ic(icon || TONE[tone] || 'clock')}${esc(text)}</span>`;
-const bar = (a, b) => `<div class="bar" role="img" aria-label="${a}% approved${b > a ? `, ${b}% when approved` : ''}"><span class="bar__ok" style="width:${a}%"></span><span class="bar__pend" style="left:${a}%;width:${b - a}%"></span></div><div class="bar__lbl"><b class="mono">${a}%</b>${b > a ? ` · <span class="mono">${b}%</span> when approved` : ' approved'}</div>`;
+const pill = (tone, text, icon) => `<span class="pill pill-${tone}">${ic(icon || TONE[tone] || 'clock')}${esc(text)}</span>`;
+const bar = (a, b) => `<div class="bar" role="img" aria-label="${a}% approved${b > a ? `, ${b}% when approved` : ''}"><span class="ok" style="width:${a}%"></span><span class="pend" style="left:${a}%;width:${b - a}%"></span></div><div class="barlabel"><span><b>${a}%</b> approved</span>${b > a ? `<span>${b}% once approved</span>` : ''}</div>`;
 function toast(msg, icon = 'check') {
   const el = document.createElement('div'); el.className = 'toast'; el.innerHTML = `${ic(icon)}<span>${esc(msg)}</span>`;
   $('#toasts').appendChild(el);
@@ -81,7 +81,7 @@ function renderJob() {
   const pick = ME.jobs.length > 1 ? `<div class="jobpick" role="group" aria-label="Your jobs">${ME.jobs.map(x => `<button type="button" aria-pressed="${x.id === jobId}" data-job="${x.id}">${esc(x.tag)}</button>`).join('')}</div>` : '';
   $('#jobhead').innerHTML = j
     ? `${pick}<div class="jobcard"><h1>${esc(j.name)}</h1>${bar(j.approved_pct, j.pending_pct)}<div class="job__meta"><span class="mono">${esc(j.qty_label)}</span>${pill(j.status[0], j.status[1])}</div></div>`
-    : `<div class="jobcard"><h1>No job yet</h1><p class="explain">${esc(ME.manager)} will add you to one. You can still send photos and notes; I’ll keep them until then.</p></div>`;
+    : `<div class="jobcard"><h1>No job yet</h1><p class="muted">${esc(ME.manager)} will add you to one. You can still send photos and notes; I’ll keep them until then.</p></div>`;
 }
 function openReport() {
   if (!jobId) return null;
@@ -92,7 +92,7 @@ function renderDraft() {
   const last = ME.reports.find(x => x.job_id === jobId && (x.state === 'submitted' || x.state === 'approved'));
   const el = $('#draft');
   if (!r) {
-    if (last && last.state === 'submitted') el.innerHTML = `<div class="draft__body">${pill('pend', `Submitted · waiting for ${managerFirst()}`)}<div class="big">${esc(last.change)}${last.where ? `<small>${esc(last.where)}</small>` : ''}</div><p class="quietline">You’ll hear back here. Keep sending; I’ll start tomorrow’s draft.</p></div>`;
+    if (last && last.state === 'submitted') el.innerHTML = `<div class="draft__body">${pill('pend', `Submitted · waiting for ${managerFirst()}`)}<div class="big">${esc(last.change)}${last.where ? `<small>${esc(last.where)}</small>` : ''}</div><p class="muted small">You’ll hear back here. Keep sending; I’ll start tomorrow’s draft.</p></div>`;
     else el.innerHTML = '';
     el.classList.remove('collapsed');
     return;
@@ -108,8 +108,8 @@ function renderDraft() {
       ${r.question ? `<div class="note">${asst()} ${esc(r.question)}</div>` : ''}
       ${r.missing.length ? `<div class="missing"><b>Missing</b>${esc(r.missing.join(', '))}</div>` : ''}
       ${r.asked.map(q => `<div class="note"><b>${esc(managerFirst())} asked:</b> ${esc(q)}</div>`).join('')}
-      <button class="btn btn--primary btn--block sendbtn" data-submit="${r.id}" ${n ? '' : 'disabled'}>${ic('send')}${isChanges ? 'Send again' : 'Send report'}</button>
-      <p class="quietline">${n} item${n === 1 ? '' : 's'} attached · goes to ${esc(ME.manager)} for approval${r.drafted_by === 'claude' ? ' · drafted by Claude' : ''}.</p>
+      <button class="btn btn-primary btn-block sendbtn" data-submit="${r.id}" ${n ? '' : 'disabled'}>${ic('send')}${isChanges ? 'Send again' : 'Send report'}</button>
+      <p class="muted small">${n} item${n === 1 ? '' : 's'} attached · goes to ${esc(ME.manager)} for approval${r.drafted_by === 'llm' ? ' · drafted by the local model' : ''}.</p>
     </div>`;
 }
 function inputBubble(x, pending) {
@@ -153,7 +153,7 @@ function scheduleRefresh(ms = 300) { clearTimeout(refreshTimer); refreshTimer = 
 async function load() {
   try { ME = await api('GET', '/api/field/me'); }
   catch (e) {
-    if (e.status === 401) { $('#main').innerHTML = `<div class="empty-state"><h1 class="stage__title">This link no longer works</h1><p>Ask your manager for a new one.</p></div>`; $('#composer').hidden = true; }
+    if (e.status === 401) { $('#main').innerHTML = `<div class="empty-state"><h1>This link no longer works</h1><p>Ask your manager for a new one.</p></div>`; $('#composer').hidden = true; }
     return;
   }
   const saved = +store('fb-job-' + TOKEN.slice(0, 12));

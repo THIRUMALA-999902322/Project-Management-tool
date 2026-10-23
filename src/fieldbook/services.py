@@ -1,13 +1,12 @@
 """Business operations. The API and the seed both go through these, so behaviour is one place.
 
-Each function changes state, emits the events the office animates, and commits. Functions
+Each function changes state, emits the events the office app shows live, and commits. Functions
 that write to the ledger commit through `ledger.append_and_commit`, so the decision and its
 ledger entry land in one transaction.
 """
 
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -21,7 +20,7 @@ from fieldbook.assistant import review as review_mod
 from fieldbook.assistant.rules import find_station_range
 from fieldbook.config import Settings
 from fieldbook.db import utcnow
-from fieldbook.events import emit, set_bubble
+from fieldbook.events import emit, set_activity
 from fieldbook.models import (
     FIELD_ROLES,
     MANAGER_ROLES,
@@ -51,22 +50,17 @@ ROLE_LABEL = {
     "inspector": "Inspector",
     "contractor": "Contractor",
 }
-ROOM_OF = {
-    "owner": "owner",
-    "pm": "pm",
-    "engineer": "design",
-    "cad": "design",
-    "qaqc": "qaqc",
-    "crew": "trailer",
-    "inspector": "trailer",
-    "contractor": "gate",
+TEAM_OF = {
+    "owner": "Management",
+    "pm": "Management",
+    "engineer": "Design",
+    "cad": "Design",
+    "qaqc": "QA/QC",
+    "crew": "Field",
+    "inspector": "Field",
+    "contractor": "Contractors",
 }
 PROJECT_COLORS = ["#1F6F8B", "#9C5A2E", "#5B4B8A", "#3F7F6E", "#8A3B5C"]
-SKINS = ["#F3D2B3", "#EAC39B", "#D9A47A", "#C68642", "#A86B46", "#8D5A3B", "#6B4430"]
-HAIRS = ["short", "bun", "long", "curly", "buzz"]
-HAIR_COLORS = ["#1E1B1A", "#3A2618", "#6B4B32", "#8B4A2B", "#C9A15B", "#2B211C"]
-SHIRTS = ["#2F6F73", "#6E94C8", "#7A9E7E", "#8C3B4A", "#5B4B8A", "#3F5A7A"]
-FIELD_HAT = {"crew": "#F4F4F0", "inspector": "#3B6FB6", "contractor": "#E46B1F"}
 
 
 class Forbidden(Exception):
@@ -79,35 +73,6 @@ class Invalid(Exception):
 
 def first_name(p: Person) -> str:
     return p.name if "." in p.name.split(" ")[0] else p.name.split(" ")[0]
-
-
-def look_for_role(look: dict[str, Any], role: str) -> dict[str, Any]:
-    """Dress the desk character for the role: hard hat and vest in the field, office shirt inside."""
-    out = dict(look)
-    if role in FIELD_ROLES:
-        out.setdefault("office_shirt", out.get("shirt"))
-        out["hat"] = FIELD_HAT[role] if out.get("hat") in (None, *FIELD_HAT.values()) else out["hat"]
-        out["vest"] = "#D7E23A" if role == "contractor" else "#F07F1E"
-        out["shirt"], out["prop"] = "#4B5563", "radio"
-    else:
-        out.pop("hat", None)
-        out.pop("vest", None)
-        out["shirt"] = out.get("office_shirt") or out.get("shirt") or "#3F5A7A"
-        out["prop"] = {"engineer": "tube", "qaqc": "binder"}.get(role, "mug")
-    return out
-
-
-def generated_look(name: str, role: str) -> dict[str, Any]:
-    seed = int(hashlib.sha256(name.encode()).hexdigest()[:8], 16)
-    look = {
-        "skin": SKINS[seed % len(SKINS)],
-        "hair": HAIRS[(seed >> 3) % len(HAIRS)],
-        "hair_color": HAIR_COLORS[(seed >> 6) % len(HAIR_COLORS)],
-        "shirt": SHIRTS[(seed >> 9) % len(SHIRTS)],
-        "glasses": (seed >> 12) % 3 == 0,
-        "beard": (seed >> 14) % 5 == 0,
-    }
-    return look_for_role(look, role)
 
 
 # ---------------------------------------------------------------- people
@@ -129,7 +94,6 @@ def create_person(
     device: str = "phone",
     company: str | None = None,
     location: str | None = None,
-    look: dict[str, Any] | None = None,
     announce: bool = True,
 ) -> tuple[Person, str]:
     """Add someone. Returns the person and the raw field-app token (shown once, as a link)."""
@@ -147,14 +111,13 @@ def create_person(
         company=company,
         location=location or ("On site" if role in FIELD_ROLES else ROLE_LABEL[role]),
         status="invited",
-        look=look or generated_look(name, role),
         hired_at=utcnow(),
     )
     db.add(person)
     db.flush()
     raw = issue_token(db, person, "field")
     first = first_name(person)
-    set_bubble(db, person, "idle", f"Hi {first}. Send me a photo", "chat")
+    set_activity(db, person, "idle", f"Hi {first}. Send me a photo")
     if announce:
         emit(
             db,
@@ -163,7 +126,7 @@ def create_person(
             f"{name} joined as {ROLE_LABEL[role]}. Their Assistant is set up.",
             person=person,
             actor=actor,
-            room=ROOM_OF[role],
+            team=TEAM_OF[role],
         )
     db.commit()
     return person, raw
@@ -187,12 +150,11 @@ def update_person(
             raise Invalid("The owner's role can't be changed here.")
         old = person.role
         person.role = role
-        person.look = look_for_role(person.look, role)
         if role in FIELD_ROLES and old not in FIELD_ROLES:
             person.location = "On site"
         elif role not in FIELD_ROLES:
             person.location = ROLE_LABEL[role]
-        set_bubble(db, person, "ok", f"Now {ROLE_LABEL[role]}", "check")
+        set_activity(db, person, "ok", f"Now {ROLE_LABEL[role]}")
         emit(
             db,
             person.org_id,
@@ -200,8 +162,8 @@ def update_person(
             f"{person.name} moved from {ROLE_LABEL[old]} to {ROLE_LABEL[role]}. Their Assistant's permissions changed with the role.",
             person=person,
             actor=actor,
-            old_room=ROOM_OF[old],
-            room=ROOM_OF[role],
+            old_team=TEAM_OF[old],
+            team=TEAM_OF[role],
         )
     else:
         emit(db, person.org_id, "person.updated", person=person, actor=actor)
@@ -225,7 +187,7 @@ def remove_person(db: Session, person: Person, actor: Person) -> list[Job]:
         f"{person.name} left the office. Their approved history stays in the record.",
         person=person,
         actor=actor,
-        room=ROOM_OF[person.role],
+        team=TEAM_OF[person.role],
         jobs=[j.id for j in jobs],
     )
     db.commit()
@@ -245,7 +207,7 @@ def heartbeat(db: Session, person: Person, *, online: bool, queued: int) -> None
     if person.status == "invited":
         person.status = "active"
     if online and was_offline:
-        set_bubble(db, person, "ok", "Back online", "check")
+        set_activity(db, person, "ok", "Back online")
         emit(db, person.org_id, "person.online", f"{person.name} is back online.", person=person)
     db.commit()
 
@@ -436,7 +398,7 @@ def approve_plan(db: Session, project: Project, actor: Person, edits: list[dict[
             by_person.setdefault(j.assignee_id, []).append(j)
     for pid, js in by_person.items():
         p = db.get(Person, pid)
-        set_bubble(db, p, "ok", f"New job: {js[0].tag}" + (f" +{len(js) - 1}" if len(js) > 1 else ""), "briefcase")
+        set_activity(db, p, "ok", f"New job: {js[0].tag}" + (f" +{len(js) - 1}" if len(js) > 1 else ""))
         emit(
             db, project.org_id, "job.assigned", person=p, actor=actor, job_ids=[j.id for j in js], project_id=project.id
         )
@@ -510,7 +472,7 @@ def assign_job(db: Session, job: Job, person: Person | None, actor: Person) -> J
     job.assignee_id = person.id if person else None
     org_id = job.project.org_id
     if person:
-        set_bubble(db, person, "ok", f"New job: {job.tag}", "briefcase")
+        set_activity(db, person, "ok", f"New job: {job.tag}")
         emit(
             db,
             org_id,
@@ -649,8 +611,7 @@ def add_input(
         label=_packet_label(kind, text, upload),
         job_id=job.id if job else None,
     )
-    icon = {"photo": "image", "voice": "mic", "doc": "file", "text": "chat"}[kind]
-    set_bubble(db, person, "input", _packet_label(kind, text, upload), icon)
+    set_activity(db, person, "input", _packet_label(kind, text, upload))
     db.commit()
     return inp, report, True
 
@@ -672,16 +633,16 @@ def redraft(db: Session, settings: Settings, report: Report) -> Report:
     report.updated_at = utcnow()
     if report.status == "draft":
         if report.delta:
-            set_bubble(
+            set_activity(
                 db,
                 person,
                 "work",
                 f"Draft ready · {fmt_qty(report.delta, report.job.word or report.job.unit, sign=True)}",
             )
         elif report.question:
-            set_bubble(db, person, "warn", report.question, "chat")
+            set_activity(db, person, "warn", report.question)
         else:
-            set_bubble(db, person, "work", "Adding to today's draft")
+            set_activity(db, person, "work", "Adding to today's draft")
     emit(
         db,
         person.org_id,
@@ -708,12 +669,12 @@ def submit_report(db: Session, settings: Settings, report: Report, actor: Person
     report.review = review_mod.review(db, settings, report)
     job = report.job
     change = fmt_qty(report.delta, job.unit, sign=True) if report.delta else report.summary
-    set_bubble(db, actor, "pend", f"Submitted · waiting for {manager_name(db, actor.org_id).split(' ')[0]}")
+    set_activity(db, actor, "pend", f"Submitted · waiting for {manager_name(db, actor.org_id).split(' ')[0]}")
     emit(
         db,
         actor.org_id,
         "report.submitted",
-        f"{actor.name}'s Assistant sent a report to the in-tray: {change}"
+        f"{actor.name}'s Assistant sent a report for approval: {change}"
         + (f", Sta {report.sta_from} to {report.sta_to}" if report.sta_from else ""),
         person=actor,
         report_id=report.id,
@@ -751,7 +712,7 @@ def approve_report(db: Session, report: Report, actor: Person, *, at: datetime |
     text = f"{job.tag} · {fmt_qty(report.delta, job.unit, sign=True)}" + (
         f" · Sta {report.sta_from} to {report.sta_to}" if report.sta_from else ""
     )
-    set_bubble(db, reporter, "ok", "Approved · locked", "lock")
+    set_activity(db, reporter, "ok", "Approved · locked")
     entry = ledger.append_and_commit(
         db,
         org_id=job.project.org_id,
@@ -799,7 +760,7 @@ def request_changes(db: Session, report: Report, actor: Person, *, items: list[s
     items = [i for i in items if i.strip()] or ["A closer look"]
     report.change_note = f"Needs: {', '.join(items)}" + (f". “{note.strip()}”" if note and note.strip() else "")
     report.review = {**report.review, "requested": items}
-    set_bubble(db, report.person, "warn", f"Changes requested · {len(items)}", "alert")
+    set_activity(db, report.person, "warn", f"Changes requested · {len(items)}")
     emit(
         db,
         report.person.org_id,
@@ -821,7 +782,7 @@ def ask_about_report(db: Session, report: Report, actor: Person, text: str) -> R
         *report.manager_questions,
         {"text": text.strip(), "by": actor.name, "at": utcnow().isoformat() + "Z"},
     ]
-    set_bubble(db, report.person, "warn", f"{first_name(actor)} asked 1 question", "chat")
+    set_activity(db, report.person, "warn", f"{first_name(actor)} asked 1 question")
     emit(
         db,
         actor.org_id,

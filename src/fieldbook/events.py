@@ -1,8 +1,8 @@
 """The field book: every notable thing becomes an Event row.
 
-The office app shows events as the day's log and turns them into animations (a card dropping
-onto a desk, a folder flying to the in-tray). The SSE stream reads this table, so it works
-the same with one process or several.
+The office app shows events as the activity feed and as live updates (a new report in the
+approval queue, an Assistant's status). The SSE stream reads this table, so it works the same
+with one process or several.
 """
 
 from __future__ import annotations
@@ -37,10 +37,10 @@ def emit(
     return event
 
 
-def set_bubble(db: Session, person: Person, kind: str, text: str, icon: str | None = None) -> Event:
-    """Update what a person's Assistant is shown doing, and tell the office."""
-    person.bubble_kind, person.bubble_text, person.bubble_icon = kind, text[:200], icon
-    return emit(db, person.org_id, "assistant.status", person=person, kind=kind, label=text, icon=icon)
+def set_activity(db: Session, person: Person, kind: str, text: str) -> Event:
+    """Update what a person's Assistant is doing, and tell the office."""
+    person.activity_kind, person.activity_text = kind, text[:200]
+    return emit(db, person.org_id, "assistant.status", person=person, kind=kind, label=text)
 
 
 def event_dict(e: Event) -> dict[str, Any]:
